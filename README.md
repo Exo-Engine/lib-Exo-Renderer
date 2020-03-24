@@ -1,1 +1,1 @@
-# lib-Exo-Renderer
+# LibRendererSDLOpenGL

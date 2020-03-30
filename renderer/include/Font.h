@@ -26,13 +26,14 @@
 
 #include "FntLoader.h"
 #include "ITexture.h"
+#include "IResource.h"
 
 #include <memory>
 
 namespace	ExoRenderer
 {
 
-class Font
+class Font : public ExoEngine::IResource
 {
 public:
 	Font(void)

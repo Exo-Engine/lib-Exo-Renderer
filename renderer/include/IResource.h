@@ -22,29 +22,19 @@
  *	SOFTWARE.
  */
 
-#pragma once
+#ifndef IRESOURCE_H
+# define IRESOURCE_H
 
-#include <string>
-#include <vector>
-#include "Enums.h"
-#include "IResource.h"
-
-namespace	ExoRenderer
+namespace	ExoEngine
 {
 
-class IArrayTexture : public ExoEngine::IResource
+class IResource
 {
 public:
-	IArrayTexture(void)
-	{ }
-	
-	virtual ~IArrayTexture(void)
-	{ }
-	
-	virtual void initialize(int width, int height, std::vector<std::string>& textures, TextureFilter filter) = 0;
-	
-	virtual void bind(int unit = 0) const = 0;
-	virtual void unbind() const = 0;
+	IResource(void) { }
+	virtual ~IResource(void) { }
 };
 
 }
+
+#endif

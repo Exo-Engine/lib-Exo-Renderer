@@ -26,11 +26,12 @@
 
 #include <string>
 #include "Enums.h"
+#include "IResource.h"
 
 namespace	ExoRenderer
 {
 
-class ITexture
+class ITexture : public ExoEngine::IResource
 {
 public:
 	ITexture(void)

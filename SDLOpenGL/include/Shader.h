@@ -30,6 +30,7 @@
 	#include <GL/glew.h>
 #endif
 #include <string>
+#include <vector>
 #include <glm/glm.hpp>
 #include "IShader.h"
 
@@ -41,13 +42,15 @@ class Shader: public ExoRenderer::IShader
 public:
 	Shader(void);
 	Shader(const std::string& filePath);
+	Shader(const std::vector<std::string>& shaderSource);
 	~Shader(void);
-	
-	virtual void initialize(const std::string& filePath);
-	
+
+	void initialize(const std::string& filePath);
+	void initialize(const std::vector<std::string>& shaderSource);
+
 	virtual void bind(void) const;
 	virtual void unbind(void) const;
-	
+
 	// Setters
 	virtual void setMat4(const std::string& name, const glm::mat4& value) const;
 	virtual void setVec4(const std::string& name, const glm::vec4& value) const;
@@ -63,6 +66,7 @@ public:
 	GLuint getShader(void) const;
 private:
 	void loadShader(const std::string& filePath, std::string& vertexShaderCode, std::string& fragmentShaderCode);
+	void loadShader(const std::vector<std::string>& shaderSource, std::string& vertexShaderCode, std::string& fragmentShaderCode);
 	unsigned int compileShader(const std::string& shaderCode, const GLenum& type);
 private:
 	GLuint _programId;

@@ -556,11 +556,185 @@ void RendererSDLOpenGL::createBuffers(void)
 	Axis::vertexBuffer = new Buffer(9, 3, &triangleVertexBuffer, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false);
 }
 
+static const std::vector<std::string>	g_2DShader = {
+	"#version 330 core",
+	"",
+	"layout(location = 0) in vec3 position;",
+	"layout(location = 1) in vec2 texCoord;",
+	"",
+	"uniform mat4 view;",
+	"uniform mat4 projection;",
+	"uniform mat4 model;",
+	"",
+	"out vec2 TexCoords;",
+	"",
+	"void main(void) ",
+	"{",
+	"    gl_Position = projection * view * model * vec4(position, 1.0);",
+	"    TexCoords = texCoord;",
+	"}",
+	"",
+	"#FRAGMENT",
+	"#version 330 core",
+	"",
+	"in vec2 TexCoords;",
+	"",
+	"uniform sampler2DArray ourTexture;",
+	"uniform int layer;",
+	"uniform int flipHorizontal;",
+	"uniform int flipVertical;",
+	"uniform float size;",
+	"",
+	"out vec4 color;",
+	"",
+	"void main(void) ",
+	"{    ",
+	"    vec4 color_out = texture(ourTexture, vec3(TexCoords.x * size * flipHorizontal, TexCoords.y * size * flipVertical, layer));",
+	"",
+	"    if(color_out.a < 0.1)",
+	"        discard;",
+	"",
+	"	color = color_out;",
+	"}"
+};
+
+static const std::vector<std::string>	g_guiShader = {
+	"#version 330 core",
+	"layout (location = 0) in vec2 position;",
+	"",
+	"uniform mat4 transformation;",
+	"uniform mat4 projection;",
+	"",
+	"out vec2 TexCoords;",
+	"",
+	"void main(void)",
+	"{",
+	"    gl_Position = projection * transformation * vec4(position, 0.0, 1.0);",
+	"    TexCoords = vec2((position.x + 1.0) / 2, 1 - (-1 * position.y + 1.0) / 2.0);",
+	"}",
+	"",
+	"#FRAGMENT",
+	"#version 330 core",
+	"",
+	"in vec2 TexCoords;",
+	"",
+	"out vec4 color;",
+	"",
+	"uniform sampler2D guiTexture;",
+	"uniform float opacity;",
+	"uniform float numberOfRows;",
+	"uniform float numberOfColumns;",
+	"uniform vec2 offset;",
+	"",
+	"void main(void)",
+	"{    ",
+	"    color = texture(guiTexture, vec2(TexCoords.x / numberOfRows, TexCoords.y / numberOfColumns) + offset);",
+	"    color.a = color.a - opacity;",
+	"}"
+};
+
+static const std::vector<std::string>	g_fontShader = {
+	"#version 330 core",
+	"layout (location = 0) in vec4 vertex;",
+	"",
+	"uniform mat4 projection;",
+	"",
+	"out vec2 TexCoords;",
+	"",
+	"void main()",
+	"{",
+	"    gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);",
+	"    TexCoords = vertex.zw;",
+	"}",
+	"",
+	"#FRAGMENT",
+	"#version 330 core",
+	"",
+	"in vec2 TexCoords;",
+	"out vec4 color;",
+	"",
+	"uniform sampler2D fontAtlas;",
+	"uniform vec3 textColor;",
+	"",
+	"void main()",
+	"{    ",
+	"    color = vec4(textColor, texture(fontAtlas, TexCoords).r);",
+	"}"
+};
+
+static const std::vector<std::string>	g_lineShader = {
+	"#version 330",
+	"",
+	"layout(location = 0) in vec3 position;",
+	"",
+	"uniform mat4 view;",
+	"uniform mat4 projection;",
+	"uniform mat4 model;",
+	"uniform vec4 color;",
+	"",
+	"out vec4 in_color;",
+	"",
+	"void main(void)",
+	"{",
+	"  gl_Position = projection * view * model * vec4(position, 1.0);",
+	"  in_color = color;",
+	"}",
+	"",
+	"#FRAGMENT",
+	"#version 330",
+	"",
+	"in vec4 in_color;",
+	"out vec4 color;",
+	"",
+	"void main(void)",
+	"{",
+	"  color = in_color;",
+	"}"
+};
+
+static const std::vector<std::string>	g_axisShader = {
+	"#version 330",
+	"",
+	"layout(location = 0) in vec3 position;",
+	"",
+	"uniform mat4 view;",
+	"uniform mat4 projection;",
+	"uniform mat4 model;",
+	"uniform vec4 color;",
+	"",
+	"out vec4 in_color;",
+	"",
+	"void main(void)",
+	"{",
+	"  gl_Position = projection * view * model * vec4(position, 1.0);",
+	"  in_color = color;",
+	"}",
+	"",
+	"#FRAGMENT",
+	"#version 330",
+	"",
+	"in vec4 in_color;",
+	"out vec4 color;",
+	"",
+	"void main(void)",
+	"{",
+	"  color = in_color;",
+	"}"
+};
+
 void RendererSDLOpenGL::loadShaders(void)
 {
+#ifdef USE_TEST_SHADERS
 	ObjectRenderer::pShader = new Shader("resources/shaders/OpenGL3/2D.glsl");
 	GUIRenderer::pGuiShader = new Shader("resources/shaders/OpenGL3/gui.glsl");
 	TextRenderer::pTextShader = new Shader("resources/shaders/OpenGL3/font.glsl");
 	Grid::pShader = new Shader("resources/shaders/OpenGL3/line.glsl");
 	Axis::pShader = new Shader("resources/shaders/OpenGL3/axis.glsl");
+#else
+	ObjectRenderer::pShader = new Shader(g_2DShader);
+	GUIRenderer::pGuiShader = new Shader(g_guiShader);
+	TextRenderer::pTextShader = new Shader(g_fontShader);
+	Grid::pShader = new Shader(g_lineShader);
+	Axis::pShader = new Shader(g_axisShader);
+#endif
 }

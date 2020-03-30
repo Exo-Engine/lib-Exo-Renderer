@@ -38,12 +38,10 @@ public:
 	
 	virtual ~IShader(void)
 	{	}
-	
-	virtual void initialize(const std::string& filePath) = 0;
-		
+
 	virtual void bind() const = 0;
 	virtual void unbind() const = 0;
-	
+
 	// Setters
 	virtual void setMat4(const std::string &name, const glm::mat4 &value) const = 0;
 	virtual void setVec3(const std::string &name, const glm::vec3 &value) const = 0;

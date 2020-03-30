@@ -54,6 +54,33 @@ Window::~Window(void)
 	SDL_Quit();
 }
 
+static const std::vector<std::string>	g_defaultShader = {
+	"#version 330 core",
+	"layout(location = 0) in vec3 position;",
+	"layout(location = 1) in vec2 texCoord;",
+	"",
+	"out vec2 TexCoords;",
+	"",
+	"void main(void) ",
+	"{",
+	"	gl_Position = vec4(position.x, position.y, 0.0, 1.0);",
+	"	TexCoords = texCoord;",
+	"}",
+	"",
+	"#FRAGMENT",
+	"#version 330 core",
+	"",
+	"uniform sampler2D screenTexture;",
+	"",
+	"in vec2 TexCoords;",
+	"out vec4 color;",
+	"",
+	"void main(void) ",
+	"{",
+	"	color = texture(screenTexture, TexCoords);",
+	"}"
+};
+
 void Window::initialize(const std::string& title, uint32_t width, uint32_t height, const WindowMode &mode, bool resizable, GamepadManager &gamepad)
 {
 	
@@ -179,8 +206,12 @@ void Window::initialize(const std::string& title, uint32_t width, uint32_t heigh
 		1.0f, 0.0f,
 		1.0f, 1.0f
 	};
-	
+
+#ifdef USE_TEST_SHADERS
 	_postProcessing.initialize("resources/shaders/OpenGL3/post-processing/default.glsl");
+#else
+	_postProcessing.initialize(g_defaultShader);
+#endif
 	_postProcessing.bind();
 	
 	_postVertexArrayObject.initialize(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);

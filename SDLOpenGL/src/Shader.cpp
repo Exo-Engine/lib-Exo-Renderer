@@ -37,9 +37,15 @@ Shader::Shader(void)
 {	}
 
 Shader::Shader(const std::string& filePath)
-: _programId(0)
+: Shader()
 {
 	initialize(filePath);
+}
+
+Shader::Shader(const std::vector<std::string>& shaderSource)
+: Shader()
+{
+	initialize(shaderSource);
 }
 
 Shader::~Shader(void)
@@ -51,21 +57,60 @@ void Shader::initialize(const std::string& filePath)
 {
 	std::string vertexShaderCode;
 	std::string fragmentShaderCode;
-	
+
 	// Read the shader file
 	loadShader(filePath, vertexShaderCode, fragmentShaderCode);
-	
+
 	// Compile
 	unsigned int vertexShaderID = compileShader(vertexShaderCode, GL_VERTEX_SHADER);
 	unsigned int fragmentShaderID = compileShader(fragmentShaderCode, GL_FRAGMENT_SHADER);
-	
+
 	// Create the program
 	GL_CALL(_programId = glCreateProgram());
-	
+
 	GL_CALL(glAttachShader(_programId, vertexShaderID));
 	GL_CALL(glAttachShader(_programId, fragmentShaderID));
 	GL_CALL(glLinkProgram(_programId));
-	
+
+	GLint isLinked = 0;
+	GL_CALL(glGetProgramiv(_programId, GL_LINK_STATUS, &isLinked));
+	if (isLinked == GL_FALSE)
+	{
+		GLint maxLength = 0;
+		GL_CALL(glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &maxLength));
+
+		std::vector<char> errorMessage(maxLength);
+		GL_CALL(glGetProgramInfoLog(_programId, maxLength, &maxLength, &errorMessage[0]));
+		glDeleteProgram(_programId);
+		throw (std::invalid_argument(&errorMessage[0]));
+	}
+
+	GL_CALL(glDetachShader(_programId, vertexShaderID));
+	GL_CALL(glDetachShader(_programId, fragmentShaderID));
+
+	GL_CALL(glDeleteShader(vertexShaderID));
+	GL_CALL(glDeleteShader(fragmentShaderID));
+}
+
+void Shader::initialize(const std::vector<std::string>& shaderSource)
+{
+	std::string vertexShaderCode;
+	std::string fragmentShaderCode;
+
+	// Read the shader file
+	loadShader(shaderSource, vertexShaderCode, fragmentShaderCode);
+
+	// Compile
+	unsigned int vertexShaderID = compileShader(vertexShaderCode, GL_VERTEX_SHADER);
+	unsigned int fragmentShaderID = compileShader(fragmentShaderCode, GL_FRAGMENT_SHADER);
+
+	// Create the program
+	GL_CALL(_programId = glCreateProgram());
+
+	GL_CALL(glAttachShader(_programId, vertexShaderID));
+	GL_CALL(glAttachShader(_programId, fragmentShaderID));
+	GL_CALL(glLinkProgram(_programId));
+
 	GLint isLinked = 0;
 	GL_CALL(glGetProgramiv(_programId, GL_LINK_STATUS, &isLinked));
 	if (isLinked == GL_FALSE)
@@ -78,10 +123,10 @@ void Shader::initialize(const std::string& filePath)
 		glDeleteProgram(_programId);
 		throw (std::invalid_argument(&errorMessage[0]));
 	}
-	
+
 	GL_CALL(glDetachShader(_programId, vertexShaderID));
 	GL_CALL(glDetachShader(_programId, fragmentShaderID));
-	
+
 	GL_CALL(glDeleteShader(vertexShaderID));
 	GL_CALL(glDeleteShader(fragmentShaderID));
 }
@@ -154,12 +199,33 @@ void Shader::loadShader(const std::string& filePath, std::string &vertexShaderCo
 	// Read the shader file
 	std::fstream file(filePath);
 	if(!file.is_open())
-		throw (std::invalid_argument("Error: Shader file not found!"));
-	
+		throw (std::invalid_argument("Error: Shader file '" + filePath + "' not found!"));
+
 	std::string line;
 	bool inFragmentShader = false;
-	
+
 	while (std::getline(file, line))
+	{
+		if (line == "#FRAGMENT")
+			inFragmentShader = true;
+		else if (inFragmentShader)
+		{
+			fragmentShaderCode += '\n';
+			fragmentShaderCode += line;
+		}
+		else
+		{
+			vertexShaderCode += '\n';
+			vertexShaderCode += line;
+		}
+	}
+}
+
+void Shader::loadShader(const std::vector<std::string>& shaderSource, std::string& vertexShaderCode, std::string& fragmentShaderCode)
+{
+	bool inFragmentShader = false;
+
+	for (const std::string& line : shaderSource)
 	{
 		if (line == "#FRAGMENT")
 			inFragmentShader = true;
@@ -182,12 +248,12 @@ unsigned int Shader::compileShader(const std::string& shaderCode, const GLenum& 
 	const char *c_str = shaderCode.c_str();
 	GL_CALL(glShaderSource(shaderId, 1, &c_str, NULL));
 	GL_CALL(glCompileShader(shaderId));
-	
+
 	// Check
 	GLint result = GL_FALSE;
 	int InfoLogLength;
-	
-	
+
+
 	GL_CALL(glGetShaderiv(shaderId, GL_COMPILE_STATUS, &result));
 	GL_CALL(glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &InfoLogLength));
 	if (result != GL_TRUE) {
@@ -195,7 +261,7 @@ unsigned int Shader::compileShader(const std::string& shaderCode, const GLenum& 
 		glGetShaderInfoLog(shaderId, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
 		throw (std::invalid_argument(&VertexShaderErrorMessage[0]));
 	}
-	
+
 	return shaderId;
 }
 

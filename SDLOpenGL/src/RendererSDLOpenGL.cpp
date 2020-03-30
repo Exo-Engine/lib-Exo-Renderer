@@ -556,6 +556,8 @@ void RendererSDLOpenGL::createBuffers(void)
 	Axis::vertexBuffer = new Buffer(9, 3, &triangleVertexBuffer, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false);
 }
 
+#ifndef USE_TEST_SHADERS
+
 static const std::vector<std::string>	g_2DShader = {
 	"#version 330 core",
 	"",
@@ -721,6 +723,8 @@ static const std::vector<std::string>	g_axisShader = {
 	"  color = in_color;",
 	"}"
 };
+
+#endif
 
 void RendererSDLOpenGL::loadShaders(void)
 {

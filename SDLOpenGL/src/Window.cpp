@@ -54,6 +54,8 @@ Window::~Window(void)
 	SDL_Quit();
 }
 
+#ifndef USE_TEST_SHADERS
+
 static const std::vector<std::string>	g_defaultShader = {
 	"#version 330 core",
 	"layout(location = 0) in vec3 position;",
@@ -80,6 +82,8 @@ static const std::vector<std::string>	g_defaultShader = {
 	"	color = texture(screenTexture, TexCoords);",
 	"}"
 };
+
+#endif
 
 void Window::initialize(const std::string& title, uint32_t width, uint32_t height, const WindowMode &mode, bool resizable, GamepadManager &gamepad)
 {

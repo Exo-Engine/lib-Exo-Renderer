@@ -82,6 +82,9 @@ Texture::Texture(const std::string& filePath, TextureFilter filter)
 		case GL_RGBA:
 			_format = RGBA;
 			break;
+		case GL_RED:
+			_format = DEPTH;
+			break;
 	}
 
 	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, image->w, image->h, 0, textureFormat, GL_UNSIGNED_BYTE, image->pixels));
@@ -180,6 +183,8 @@ GLenum Texture::getFormat(const unsigned int& format)
 				return GL_BGR;
 			else
 				return GL_RGB;
+		case 1:
+			return GL_DEPTH_COMPONENT;
 		default:
 			return GL_RGBA; // By default
 	}

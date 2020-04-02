@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,7 +34,7 @@ Input::Input(const InputType &type, const std::shared_ptr<ITexture> &texture, co
 	_scaleFactor = scaleFactor;
 	_contextWidth = contextWidth;
 	_contextHeight = contextHeight;
-	
+
 	_pLabel = new Label();
 	_pLabel->setScale(false);
 	_pLabel->setText(text);
@@ -52,7 +52,7 @@ Input::~Input(void)
 void Input::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const NavigationType &navigationType)
 {
 	(void)gamepad;
-	
+
 	if (_enabled &&
 		_realPosition.y + _relativeParentPosition.y + _virtualOffset.y + _scaleSize.y > mouse->y && _realPosition.y + _relativeParentPosition.y + _virtualOffset.y - _scaleSize.y < mouse->y &&
 		_realPosition.x + _relativeParentPosition.x + _virtualOffset.x + _scaleSize.x > mouse->x && _realPosition.x + _relativeParentPosition.x + _virtualOffset.x - _scaleSize.x < mouse->x)
@@ -62,7 +62,7 @@ void Input::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const 
 			&& _isSelected == false)
 		{
 			_isSelected = true;
-			
+
 			_text.append("|");
 			_pLabel->setText(_text);
 			_pLabel->updateGlyph();
@@ -73,14 +73,14 @@ void Input::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const 
 			 && mouse->lastIsKeyDown(MouseButtons::BUTTON_LEFT))
 	{
 		_isSelected = false;
-		
+
 		if (_text.length() > 0)
 			_text.erase(_positionInLabel, 1);
-		
+
 		_positionInLabel = 0;
 		overflow();
 	}
-	
+
 	// When selected
 	if (_isSelected)
 	{
@@ -141,7 +141,7 @@ void Input::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const 
 							else if (*c >= 48 && *c <= 57)
 							{
 								insertCharacter(keyboard, c);
-								
+
 								if (std::atoi(_text.c_str()) > _max)
 								{
 									_text = std::to_string((int)_max);
@@ -262,7 +262,7 @@ void Input::setSliced(bool sliced)
 void Input::setSelected(bool selected)
 {
 	_isSelected = selected;
-	
+
 	if (_isSelected)
 	{
 		_text.append("|");
@@ -296,7 +296,7 @@ void Input::setText(const std::string& text)
 {
 	_positionInLabel = 0;
 	_isSelected = false;
-	
+
 	_text = text;
 	_pLabel->setText(text);
 }
@@ -334,7 +334,7 @@ void Input::insertCharacter(IKeyboard* keyboard, const char *c)
 		_text.insert(_positionInLabel, 1, std::toupper(*c));
 	else
 		_text.insert(_positionInLabel, 1, std::tolower(*c));
-	
+
 	_positionInLabel++;
 	_text.insert(_positionInLabel, "|");
 	overflow();

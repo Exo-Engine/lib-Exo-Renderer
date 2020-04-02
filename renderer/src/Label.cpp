@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -44,7 +44,7 @@ void Label::contextInfo(float scaleFactor, float contextWidth, float contextHeig
 		_scaleFactor = scaleFactor;
 		_contextWidth = contextWidth;
 		_contextHeight = contextHeight;
-		
+
 		// Calculate new position
 		if (_scale)
 		{
@@ -253,7 +253,7 @@ glm::vec2 Label::calcGlyphLayout(std::string& text, const float& scale, const st
 	float width = 0, maxWidth = 0;
 	float height = 0;
 	unsigned int lastWord = 0;
-	
+
 	for (unsigned int i = 0; i < text.length(); i++)
 	{
 		if(text[i] == ' ') // Space
@@ -271,29 +271,29 @@ glm::vec2 Label::calcGlyphLayout(std::string& text, const float& scale, const st
 		{
 			CharDescriptor ch = font->getFont()->getCharacter(text[i]);
 			width += ch.xAdvance * scale;
-			
+
 			if ((ch.height + ch.yOffset) * scale > height)
 				height = (ch.height + ch.yOffset) * scale;
-			
+
 			if (_maxWidth > 0 && width > _maxWidth * _scaleFactor)
 			{
 				text[lastWord] = '\n';
 				i = lastWord - 1;
 			}
 		}
-		
+
 		if (width > maxWidth)
 			maxWidth = width;
 	}
-	
+
 	return glm::vec2(maxWidth, height);
 }
 
 glm::vec2 Label::calcRealPosition(const glm::vec2& position, const glm::vec2& margin, const glm::vec2& size, const AnchorPoint& anchor, const AnchorPoint& localAnchor)
-{	
+{
 	// Anchor (screen landmark)
 	static glm::vec2 anchorPosition;
-	
+
 	switch (anchor)
 	{
 		case AnchorPoint::TOP_CENTER:
@@ -324,7 +324,7 @@ glm::vec2 Label::calcRealPosition(const glm::vec2& position, const glm::vec2& ma
 			anchorPosition = glm::vec2(0, 0);
 			break;
 	}
-	
+
 	// Local anchor
 	switch (localAnchor)
 	{

@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,7 @@ Button::Button(const std::shared_ptr<ITexture>& texture, ButtonType buttonType, 
 	_scaleFactor = scaleFactor;
 	_contextWidth = contextWidth;
 	_contextHeight = contextHeight;
-	
+
 	if (withLabel)
 	{
 		_pLabel = new Label();
@@ -49,7 +49,7 @@ Button::~Button(void)
 void Button::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const NavigationType &navigationType)
 {
 	(void)keyboard;
-	
+
 	if (_enabled)
 	{
 		if (navigationType == NavigationType::MOUSE && getRealPosition().y + _virtualOffset.y + _relativeParentPosition.y + getScaleSize().y > mouse->y // Y
@@ -117,7 +117,7 @@ void Button::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const
 			setTextureIndex(0);
 		}
 	}
-	
+
 	_clickEvent = false;
 }
 
@@ -137,7 +137,7 @@ void Button::updateLabel(void)
 				_pLabel->setPosition(_realPosition);
 				break; // Center
 		}
-		
+
 		_pLabel->setVirtualOffset(_virtualOffset);
 		_pLabel->setRelativeParentPosition(_relativeParentPosition);
 		_pLabel->contextInfo(_scaleFactor, _contextWidth, _contextHeight, true);
@@ -213,14 +213,14 @@ void Button::setTextureCut(unsigned int numberOfRows, unsigned int numberOfColum
 {
 	_numberOfRows = numberOfRows;
 	_numberOfColumns = numberOfColumns;
-	
+
 	_offset = glm::vec2((float)_textureIndex / _numberOfRows, (_textureIndex % _numberOfColumns) / (float)_numberOfColumns);
 }
 
 void Button::setState(const ButtonState& state)
 {
 	_state = state;
-	
+
 	if (_state == ButtonState::DEFAULT)
 		setTextureIndex(0);
 }
@@ -306,7 +306,7 @@ void Button::setTextureIndex(const unsigned int& textureIndex)
 	if (_textureIndex != textureIndex)
 	{
 		_textureIndex = textureIndex;
-		
+
 		if (!_sliced)
 			_offset = glm::vec2((float)_textureIndex / _numberOfRows, (_textureIndex % _numberOfColumns) / (float)_numberOfColumns);
 	}

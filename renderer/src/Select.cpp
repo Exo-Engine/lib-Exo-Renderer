@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,10 +37,10 @@ Select::Select(const std::shared_ptr<ITexture>& buttonTexture, const std::shared
 	_scaleFactor = scaleFactor;
 	_contextWidth = contextWidth;
 	_contextHeight = contextHeight;
-	
+
 	_pButton = new Button(buttonTexture, ButtonType::NORMAL, true, _scaleFactor, _contextWidth, _contextHeight);
 	_pButton->setSliced(true);
-	
+
 	_pButton->setFont(_font);
 	_pButton->setTextScale(0.25f);
 	_pButton->setPadding(0, -3);
@@ -56,14 +56,14 @@ Select::~Select(void)
 	for(auto& option : _options)
 		delete option;
 	_options.clear();
-	
+
 	for(auto& button : _buttonQueue)
 		delete button;
 	_buttonQueue.clear();
-	
+
 	if (_pButton)
 		delete _pButton;
-	
+
 	if (_pView)
 		delete _pView;
 }
@@ -75,7 +75,7 @@ void Select::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const
 	{
 		_isOpen = !_isOpen;
 		if (_callbackFunction) _callbackFunction(_callback);
-		
+
 		if (_isOpen)
 		{
 			_pView->setState(ViewState::SELECTED);
@@ -94,7 +94,7 @@ void Select::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const
 				_pNavigator->updateSelectedWidget(this, gamepad, navigationType);
 		}
 	}
-	
+
 	if (_isOpen)
 	{
 		// If user click outside, close
@@ -107,13 +107,13 @@ void Select::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const
 		{
 			_isOpen = false;
 		}
-		
+
 		for(int i = 0; i < (int)_buttonQueue.size(); i++)
 		{
 			if (i != _selectedId)
 				_pView->addChild(_buttonQueue[i]);
 		}
-		
+
 		int y = 0;
 		for(int i = 0; i < (int)_buttonQueue.size(); i++)
 		{
@@ -126,23 +126,23 @@ void Select::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, const
 					if (_callbackFunction) _callbackFunction(_callback);
 					_selectedId = i;
 					_pButton->setText(_options[_selectedId]->text);
-					
+
 					_isOpen = false;
 					_pView->setState(ViewState::DEFAULT);
 					if (_pNavigator)
 						_pNavigator->updateSelectedWidget(this, gamepad, navigationType);
-					
+
 					updateNavigation();
 					mouse->reset();
 				}
-				
+
 				y += _size.y * 2;
 			}
 		}
-		
+
 		_pView->setSize(_size.x, _size.y * _buttonQueue.size() > SELECT_VIEW_MAX_HEIGHT ? SELECT_VIEW_MAX_HEIGHT : _size.y * _buttonQueue.size());
 		_pView->setRelativeParentPosition(getRealPosition().x + _relativeParentPosition.x + _virtualOffset.x, getRealPosition().y + _relativeParentPosition.y + _virtualOffset.y + (_pView->getSize().y * _scaleFactor) + getScaleSize().y);
-		
+
 		_pView->update(mouse, keyboard, gamepad, navigationType);
 	}
 }
@@ -159,7 +159,7 @@ void Select::updateNavigation(void)
 				_buttonQueue[i]->setNextWidget(WidgetNext::TOP, nullptr);
 			else if (i - 1 >= 0)
 				_buttonQueue[i]->setNextWidget(WidgetNext::TOP, _buttonQueue[i - 1]);
-			
+
 			// Bottom
 			if (i + 1 == _selectedId)
 				_buttonQueue[i]->setNextWidget(WidgetNext::BOTTOM, nullptr);
@@ -171,7 +171,7 @@ void Select::updateNavigation(void)
 			// Top
 			if (i - 2 >= 0)
 				_buttonQueue[i - 1]->setNextWidget(WidgetNext::TOP, _buttonQueue[i - 2]);
-			
+
 			// Bottom
 			if (i + 1 < (int)_buttonQueue.size() && i - 1 >= 0)
 				_buttonQueue[i - 1]->setNextWidget(WidgetNext::BOTTOM, _buttonQueue[i + 1]);
@@ -182,7 +182,7 @@ void Select::updateNavigation(void)
 void Select::addOption(Option* option, bool selected)
 {
 	_options.push_back(option);
-	
+
 	Button* pTempButton = new Button(_buttonTexture, ButtonType::NORMAL, true, _scaleFactor, _contextWidth, _contextHeight);
 	pTempButton->setLocalAnchor(AnchorPoint::TOP_LEFT);
 	pTempButton->setSliced(true);
@@ -194,7 +194,7 @@ void Select::addOption(Option* option, bool selected)
 	pTempButton->setColor(0, 0, 0);
 	pTempButton->setSecondColor(0, 0, 0);
 	_buttonQueue.push_back(pTempButton);
-	
+
 	if (selected)
 	{
 		_selectedId = (unsigned int)_options.size() - 1;
@@ -244,7 +244,7 @@ void Select::setSelected(const std::string& select)
 			_selectedId = i;
 			_pButton->setText(_options[_selectedId]->text);
 			_isOpen = false;
-			
+
 			updateNavigation();
 			break;
 		}
@@ -254,7 +254,7 @@ void Select::setSelected(const std::string& select)
 void Select::setState(const SelectState &state)
 {
 	_state = state;
-	
+
 	if (_state == SelectState::ACTIVATE)
 		_pButton->setState(ButtonState::ACTIVATE);
 	else

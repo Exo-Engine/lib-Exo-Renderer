@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,10 +42,11 @@ class ObjectRenderer
 public:
 	ObjectRenderer(void);
 	virtual ~ObjectRenderer(void);
-	
-	void push(const ExoRenderer::sprite &s);
+
+	void add(const ExoRenderer::sprite &s);
+	void remove(const ExoRenderer::sprite &s);
 	void render(Camera* camera, const glm::mat4& perspective);
-	
+
 	// Setters
 	void setGrid(bool val);
 private:
@@ -60,8 +61,8 @@ public:
 private:
 	bool _gridEnabled;
 	bool _axisEnabled;
-	
-	std::vector<ExoRenderer::sprite> _renderQueue;
+
+	std::deque<ExoRenderer::sprite> _renderQueue;
 	Grid	*_pGrid;
 };
 

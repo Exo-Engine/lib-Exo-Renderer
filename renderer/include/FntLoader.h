@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,9 +37,9 @@ struct CharDescriptor
 	unsigned short width, height;
 	float xOffset, yOffset;
 	float xAdvance;
-	
+
 	float xMaxTextureCoord, yMaxTextureCoord;
-	
+
 	CharDescriptor()
 	: x(0), y(0), width(0), height( 0 ), xOffset( 0 ), yOffset( 0 ), xAdvance(0)
 	{ }
@@ -57,14 +57,14 @@ public:
 			std::istream is(&fb);
 			while (is)
 				parseFont(is);
-			
+
 			fb.close();
 		}
 	}
-	
+
 	virtual ~FntLoader(void)
 	{ }
-	
+
 	inline CharDescriptor getCharacter(unsigned char character) const { return _chars[character]; }
 private:
 	void parseFont(std::istream& stream)
@@ -72,15 +72,15 @@ private:
 		std::string line;
 		std::string read, key, value;
 		std::size_t i;
-		
+
 		while(!stream.eof())
 		{
 			std::stringstream lineStream;
 			std::getline(stream, line);
-			
+
 			lineStream << line;
 			lineStream >> read;
-			
+
 			if(read == "common")
 			{
 				// Read the line
@@ -89,11 +89,11 @@ private:
 					std::stringstream converter;
 					lineStream >> read;
 					i = read.find( '=' );
-					
+
 					// Split string (key=value)
 					key = read.substr( 0, i );
 					value = read.substr( i + 1 );
-					
+
 					converter << value;
 					if(key == "lineHeight")
 						converter >> _lineHeight;
@@ -108,17 +108,17 @@ private:
 			else if(read == "char")
 			{
 				unsigned int charId = 0;
-				
+
 				while(!lineStream.eof())
 				{
 					std::stringstream converter;
 					lineStream >> read;
 					i = read.find( '=' );
-					
+
 					// Split string (key=value)
 					key = read.substr( 0, i );
 					value = read.substr( i + 1 );
-					
+
 					converter << value;
 					if(key == "id")
 						converter >> charId;
@@ -137,7 +137,7 @@ private:
 					else if(key == "xadvance")
 						converter >> _chars[charId].xAdvance;
 				}
-				
+
 				_chars[charId].xMaxTextureCoord = (_chars[charId].width + _chars[charId].x) / _width;
 				_chars[charId].yMaxTextureCoord = (_chars[charId].height + _chars[charId].y) / _height;
 				_chars[charId].x /= _width;

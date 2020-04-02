@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,10 +43,10 @@ Window::~Window(void)
 {
 	if (_pFrameBuffer)
 		delete _pFrameBuffer;
-	
+
 	if (_frameTexture)
 		delete _frameTexture;
-	
+
 	SDL_GL_DeleteContext(_context);
 	SDL_GL_DeleteContext(_threadContext);
 	SDL_DestroyWindow(_window);
@@ -87,25 +87,25 @@ static const std::vector<std::string>	g_defaultShader = {
 
 void Window::initialize(const std::string& title, uint32_t width, uint32_t height, const WindowMode &mode, bool resizable, GamepadManager &gamepad)
 {
-	
+
 	_width = width;
 	_height = height;
-	
+
 	_contextWidth = width;
 	_contextHeight = height;
-	
+
 #ifndef __APPLE__
 	static bool	glew_init = false;
 	GLenum		error;
 #endif
-	
+
 	if (!(SDL_WasInit(SDL_INIT_EVERYTHING) & SDL_INIT_VIDEO))
 		if (SDL_Init(SDL_INIT_EVERYTHING))
 			throw (SDLException());
-	
+
 	IMG_Init(IMG_INIT_PNG);
 	IMG_Init(IMG_INIT_JPG);
-	
+
 	if (SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1))
 	{
 		SDL_Quit();
@@ -138,17 +138,17 @@ void Window::initialize(const std::string& title, uint32_t width, uint32_t heigh
 		throw (SDLException());
 	}
 #endif
-	
+
 	_windowMode = mode;
 	auto windowModeFlag = 0;
 	if (_windowMode == WindowMode::FULLSCREEN)
 		windowModeFlag = SDL_WINDOW_FULLSCREEN;
 	else if (_windowMode == WindowMode::BORDERLESS)
 		windowModeFlag = SDL_WINDOW_FULLSCREEN_DESKTOP;
-	
+
 	if (resizable)
 		windowModeFlag += SDL_WINDOW_RESIZABLE;
-	
+
 	if (!(_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | windowModeFlag)))
 	{
 		SDL_Quit();
@@ -175,10 +175,10 @@ void Window::initialize(const std::string& title, uint32_t width, uint32_t heigh
 		if ((error = glewInit()) != GLEW_OK)
 			throw (error);
 #endif
-	
+
 	if (SDL_GameControllerAddMappingsFromFile("resources/SDL2/gamecontrollerdb.txt") == -1)
 		;	//	silent
-	
+
 	// OpenGL setup
 	GL_CALL(glEnable(GL_CULL_FACE));
 	GL_CALL(glCullFace(GL_BACK));
@@ -188,15 +188,15 @@ void Window::initialize(const std::string& title, uint32_t width, uint32_t heigh
 	glGetIntegerv(GL_VIEWPORT, dims);
 	_contextWidth = dims[2];
 	_contextHeight = dims[3];
-	
+
 	_highDPIFactor = _contextWidth / _width;
-	
+
 	// Post Processing
 	const static float tmp1[] = {
 		-1.0f,	1.0f, 0.0f,
 		-1.0f, -1.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
-		
+
 		-1.0f,	1.0f, 0.0f,
 		1.0f, -1.0f, 0.0f,
 		1.0f,	1.0f, 0.0f
@@ -205,7 +205,7 @@ void Window::initialize(const std::string& title, uint32_t width, uint32_t heigh
 		0.0f, 1.0f,
 		0.0f, 0.0f,
 		1.0f, 0.0f,
-		
+
 		0.0f, 1.0f,
 		1.0f, 0.0f,
 		1.0f, 1.0f
@@ -217,11 +217,11 @@ void Window::initialize(const std::string& title, uint32_t width, uint32_t heigh
 	_postProcessing.initialize(g_defaultShader);
 #endif
 	_postProcessing.bind();
-	
+
 	_postVertexArrayObject.initialize(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);
 	_postArrayBuffer.initialize(18, 3, &tmp1, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false);
 	_postUVMappingBuffer.initialize(12, 2, &tmp2, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 1, true);
-	
+
 	initPostProcessing();
 }
 
@@ -354,7 +354,7 @@ void Window::initPostProcessing(void)
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		throw ("Error::FRAMEBUFFER:: Framebuffer is not complete!");
-	
+
 	_pFrameBuffer->unbind();
 }
 
@@ -365,14 +365,14 @@ void Window::setWindowSize(int w, int h)
 	_width = w;
 	_height = h;
 	glViewport(0, 0, w * _highDPIFactor, h * _highDPIFactor);
-	
+
 	// Update Post Processing Buffer
 	//> Get Context size (can be different if HIGHDPI / Retina)
 	GLint dims[4] = {0};
 	glGetIntegerv(GL_VIEWPORT, dims);
 	_contextWidth = dims[2];
 	_contextHeight = dims[3];
-	
+
 	//> Post Processing
 	initPostProcessing();
 }
@@ -393,18 +393,18 @@ void Window::setWindowMode(const WindowMode &mode)
 			break;
 	}
 	_windowMode = mode;
-	
+
 	// Check error
 	if (error == -1)
 		throw (SDLException());
-	
+
 	// Update Post Processing Buffer
 	//> Get Context size (can be different if HIGHDPI / Retina)
 	if (_windowMode == WindowMode::FULLSCREEN)
 	{
 		SDL_DisplayMode displayMode;
 		SDL_GetCurrentDisplayMode(0, &displayMode);
-		
+
 		_contextWidth = displayMode.w;
 		_contextHeight = displayMode.h;
 	}
@@ -412,13 +412,13 @@ void Window::setWindowMode(const WindowMode &mode)
 	{
 		SDL_GetWindowSize(_window, &_width, &_height);
 		glViewport(0, 0, _width * _highDPIFactor, _height * _highDPIFactor);
-		
+
 		GLint dims[4] = {0};
 		glGetIntegerv(GL_VIEWPORT, dims);
 		_contextWidth = dims[2];
 		_contextHeight = dims[3];
 	}
-	
+
 	//> Post Processing
 	initPostProcessing();
 }

@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -91,7 +91,7 @@ Texture::Texture(const std::string& filePath, TextureFilter filter)
 
 	_width = image->w;
 	_height = image->h;
-	
+
 	// Free texture
 	if (image)
 		SDL_FreeSurface(image);
@@ -165,7 +165,7 @@ SDL_Surface* Texture::generateDefaultTexture()
 		bmask = 0x00ff0000;
 		amask = 0xff000000;
 	}
-	
+
 	return SDL_CreateRGBSurface(0, 1, 1, 32, rmask, gmask, bmask, amask);
 }
 

@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,7 +43,12 @@ TextRenderer::TextRenderer(void)
 TextRenderer::~TextRenderer(void)
 {	}
 
-void TextRenderer::push(Label *element)
+void TextRenderer::add(Label *element)
+{
+	_renderQueue.push_back(element);
+}
+
+void TextRenderer::remove(Label *element)
 {
 	_renderQueue.push_back(element);
 }
@@ -51,28 +56,24 @@ void TextRenderer::push(Label *element)
 void TextRenderer::render(const glm::mat4& orthographic)
 {
 	prepare(orthographic);
-	
+
 	static float x = 0;
 	static float y = 0;
-	
-	while (!_renderQueue.empty())
+
+	for (Label* label : _renderQueue)
 	{
-		auto label = _renderQueue.front();
-		
 		int engineId = label->getFont()->getTexture()->getEngineId();
 		if (_currentTextureBind != engineId || _currentTextureBind == -1)
 			label->getFont()->getTexture()->bind();
-		
+
 		pTextShader->setVec3("textColor", label->getColor());
 		x = label->getRealPosition().x + label->getVirtualOffset().x + label->getRelativeParentPosition().x;
 		y = label->getRealPosition().y + label->getVirtualOffset().y + label->getRelativeParentPosition().y;
-		
+
 		for (const auto& c : utf8ToUtf16(label->getText()))
 			renderCharacter(c, x, y, label);
-		
-		_renderQueue.pop_front();
 	}
-	
+
 	_currentTextureBind = -1;
 }
 
@@ -81,7 +82,7 @@ void TextRenderer::prepare(const glm::mat4& orthographic)
 {
 	pTextShader->bind();
 	pTextShader->setMat4("projection", orthographic);
-	
+
 	// Render
 	vaoBuffer->bind();
 }
@@ -98,27 +99,27 @@ void TextRenderer::renderCharacter(const wchar_t c, float& x, float& y, Label* l
 	else
 	{
 		CharDescriptor ch = label->getFont()->getFont()->getCharacter(c);
-		
+
 		float w = ch.width * label->getFontScale();
 		float h = ch.height * label->getFontScale();
-		
+
 		float xpos = x + ch.xOffset * label->getFontScale();
 		float ypos = y + (ch.height + ch.yOffset) * label->getFontScale();
-		
+
 		// Vertices for character
 		float vertices[24] = {
 			xpos,	 ypos - h,	ch.x,					ch.y,
 			xpos,	 ypos,		ch.x,					ch.yMaxTextureCoord,
 			xpos + w, ypos,		ch.xMaxTextureCoord,	ch.yMaxTextureCoord,
-			
+
 			xpos,	 ypos - h,	ch.x,					ch.y,
 			xpos + w, ypos,		ch.xMaxTextureCoord,	ch.yMaxTextureCoord,
 			xpos + w, ypos - h,	ch.xMaxTextureCoord,	ch.y
 		};
-		
+
 		vertexBuffer->updateSubData(24, vertices);
 		vertexBuffer->bind();
-		
+
 		GL_CALL(glDrawArrays(GL_TRIANGLES, 0, 6));
 		x += ch.xAdvance * label->getFontScale();
 	}

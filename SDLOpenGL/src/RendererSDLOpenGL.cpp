@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -138,7 +138,7 @@ IArrayTexture* RendererSDLOpenGL::createArrayTexture(int width, int height, std:
 {
 	ArrayTexture	*texture;
 	GLsync			fenceId;
-	
+
 	if (std::this_thread::get_id() != _mainThread)
 	{
 		_pWindow->handleThread();
@@ -165,7 +165,7 @@ ILabel* RendererSDLOpenGL::createLabel()
 IButton* RendererSDLOpenGL::createButton(const std::shared_ptr<ITexture> &texture, ButtonType buttonType, bool withLabel)
 {
 	return new Button(texture, buttonType, withLabel, _UIScaleFactor, _pWindow->getWidth(), _pWindow->getHeight());
-	
+
 }
 
 ICheckbox* RendererSDLOpenGL::createCheckbox(const std::shared_ptr<ITexture> &texture, bool checked)
@@ -281,31 +281,31 @@ IFrameBuffer	*RendererSDLOpenGL::createFrameBuffer(void)
 }
 
 // Push
-void RendererSDLOpenGL::push(sprite &s)
+void RendererSDLOpenGL::add(sprite &s)
 {
-	_pObjectRenderer->push(s);
+	_pObjectRenderer->add(s);
 }
 
-void RendererSDLOpenGL::push(IWidget *widget)
+void RendererSDLOpenGL::add(IWidget *widget)
 {
 	widget->update(getMouse(), getKeyboard(), getGamepadManager()->getGamepad(0), getNavigationType());
-	
+
 	// Update
 	switch (widget->getType())
 	{
 		case IWidget::BUTTON: {
 			auto button = (Button*)widget;
-			push(button->getLabel());
+			add(button->getLabel());
 			break;
 		}
 		case IWidget::SELECT: {
 			auto select = (Select*)widget;
-			push(select->getLabel());
+			add(select->getLabel());
 			break;
 		}
 		case IWidget::INPUT: {
 			auto input = (Input*)widget;
-			push(input->getLabel());
+			add(input->getLabel());
 			break;
 		}
 		case IWidget::SPINNER: {
@@ -315,18 +315,59 @@ void RendererSDLOpenGL::push(IWidget *widget)
 		}
 		default: break;
 	}
-	
+
 	// Push in renderer
-	_pGUIRenderer->push(widget);
+	_pGUIRenderer->add(widget);
 }
 
-void RendererSDLOpenGL::push(ILabel *label)
+void RendererSDLOpenGL::add(ILabel *label)
 {
 	label->contextInfo(_UIScaleFactor, _pWindow->getWidth(), _pWindow->getHeight());
-	_pTextRenderer->push((Label*)label);
+	_pTextRenderer->add((Label*)label);
 }
 
-void RendererSDLOpenGL::push(std::shared_ptr<ILight> &light)
+void RendererSDLOpenGL::add(std::shared_ptr<ILight> &light)
+{
+}
+
+// Push
+void RendererSDLOpenGL::remove(sprite &s)
+{
+	_pObjectRenderer->remove(s);
+}
+
+void RendererSDLOpenGL::remove(IWidget *widget)
+{
+	// Update
+	switch (widget->getType())
+	{
+		case IWidget::BUTTON: {
+			auto button = (Button*)widget;
+			remove(button->getLabel());
+			break;
+		}
+		case IWidget::SELECT: {
+			auto select = (Select*)widget;
+			remove(select->getLabel());
+			break;
+		}
+		case IWidget::INPUT: {
+			auto input = (Input*)widget;
+			remove(input->getLabel());
+			break;
+		}
+		default: break;
+	}
+	// Push in renderer
+	_pGUIRenderer->remove(widget);
+}
+
+void RendererSDLOpenGL::remove(ILabel *label)
+{
+	_pTextRenderer->remove((Label*)label);
+}
+
+void RendererSDLOpenGL::remove(std::shared_ptr<ILight> &light)
 {
 }
 
@@ -337,13 +378,13 @@ void RendererSDLOpenGL::draw(void)
 	{
 		if (_pMousePicker)
 			_pMousePicker->update((IMouse*)&_mouse, _pWindow->getWidth(), _pWindow->getHeight(), ((Camera*)_pCurrentCamera)->getLookAt(), _perspective);
-		
+
 		_pObjectRenderer->render((Camera*)_pCurrentCamera, _perspective);
-		
+
 		if (_pAxis)
 			((Axis*)_pAxis)->render(((Camera*)_pCurrentCamera)->getLookAt(), _perspective);
 	}
-	
+
 	GL_CALL(glEnable(GL_BLEND));
 	GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	_pGUIRenderer->render(_orthographic);
@@ -356,8 +397,7 @@ void RendererSDLOpenGL::swap(void)
 {
 	GL_CALL(glEnable(GL_BLEND));
 	GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-	if (_pCursor)
-		_pCursor->draw(_pGUIRenderer, _orthographic);
+	draw();
 	GL_CALL(glDisable(GL_BLEND));
 
 	_mouse.updateLastBuffer();
@@ -377,31 +417,31 @@ void RendererSDLOpenGL::beginScissor(glm::vec2 position, glm::vec2 size, glm::ve
 	size			*= (!_pWindow->isFullscreen() ? _pWindow->getHighDPIFactor() : 1);
 	parentPosition	*= (!_pWindow->isFullscreen() ? _pWindow->getHighDPIFactor() : 1);
 	parentSize		*= (!_pWindow->isFullscreen() ? _pWindow->getHighDPIFactor() : 1);
-	
+
 	if (parentPosition.x != 0 && parentPosition.y != 0 && parentSize.x != 0 && parentSize.y != 0)
 	{
 		glGetIntegerv(GL_SCISSOR_BOX, _scissorBit);
 		// X
 		if (position.x + size.x > parentPosition.x + parentSize.x) // Right
 			size.x = (parentPosition.x + parentSize.x) - position.x;
-		
+
 		if (position.x < parentPosition.x) // Left
 		{
 			size.x = (position.x + size.x) - parentPosition.x;
 			position.x = parentPosition.x;
 		}
-		
+
 		// Y
 		if (position.y + size.y > parentPosition.y + parentSize.y) // Top
 			size.y = (parentPosition.y + parentSize.y) - position.y;
-		
+
 		if (position.y < parentPosition.y) // Bottom
 		{
 			size.y = (position.y + size.y) - parentPosition.y;
 			position.y = parentPosition.y;
 		}
 	}
-	
+
 	glEnable(GL_SCISSOR_TEST);
 	glScissor(position.x, position.y, size.x, size.y);
 }
@@ -410,7 +450,7 @@ void RendererSDLOpenGL::endScissor(void)
 {
 	glScissor(_scissorBit[0], _scissorBit[1], _scissorBit[2], _scissorBit[3]);
 	glDisable(GL_SCISSOR_TEST);
-	
+
 	// Reset
 	_scissorBit[0] = 0; _scissorBit[1] = 0; _scissorBit[2] = 0; _scissorBit[3] = 0;
 }
@@ -444,7 +484,11 @@ unsigned int RendererSDLOpenGL::getTime(void) const
 // Setters
 void RendererSDLOpenGL::setCursor(ICursor* cursor)
 {
+	if (_pCursor)
+		remove(_pCursor->getImage());
 	_pCursor = (Cursor*)cursor;
+	if (_pCursor)
+		add(_pCursor->getImage());
 }
 
 void RendererSDLOpenGL::setMousePicker(MousePicker* picker)
@@ -474,34 +518,34 @@ RendererSDLOpenGL::~RendererSDLOpenGL(void)
 {
 	if (_pWindow)
 		delete _pWindow;
-	
+
 	if (_pCursor)
 		delete _pCursor;
-	
+
 	// Renderers
 	if (_pObjectRenderer)
 		delete _pObjectRenderer;
-	
+
 	if (_pGUIRenderer)
 		delete _pGUIRenderer;
-	
+
 	if (_pTextRenderer)
 		delete _pTextRenderer;
-	
+
 	// Buffers
 	if (TextRenderer::vaoBuffer)
 		delete TextRenderer::vaoBuffer;
-	
+
 	if (TextRenderer::vertexBuffer)
 		delete TextRenderer::vertexBuffer;
-	
+
 	// Shaders
 	if (ObjectRenderer::pShader)
 		delete ObjectRenderer::pShader;
-	
+
 	if (GUIRenderer::pGuiShader)
 		delete GUIRenderer::pGuiShader;
-	
+
 	if (TextRenderer::pTextShader)
 		delete TextRenderer::pTextShader;
 }
@@ -515,7 +559,7 @@ void RendererSDLOpenGL::createBuffers(void)
 		 0.5f, -0.5f, 0.0f,	// bottom right
 		 0.5f, 0.5f, 0.0f,	// top right
 	};
-	
+
 	const unsigned int indexBuffer[] = {
 		0, 1, 3,
 		1, 2, 3
@@ -526,32 +570,32 @@ void RendererSDLOpenGL::createBuffers(void)
 		1.0f, 1.0f,
 		1.0f, 0.0f
 	};
-	
+
 	ObjectRenderer::vaoBuffer = new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);
 	ObjectRenderer::vertexBuffer = new Buffer(12, 3, &vertexBuffer, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false);
 	ObjectRenderer::indexBuffer = new Buffer(6, 3, &indexBuffer, BufferType::INDEXBUFFER, BufferDraw::STATIC, 0, false);
 	ObjectRenderer::uvBuffer = new Buffer(8, 2, &UVBuffer, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 1, true);
-	
+
 	// TextRenderer
 	TextRenderer::vaoBuffer = new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);
 	TextRenderer::vertexBuffer = new Buffer(24, 4, NULL, BufferType::ARRAYBUFFER, BufferDraw::DYNAMIC, 0, false);
-	
+
 	// Grid
 	const float line[] = {
 		0.0,	0.0,
 		1.0,	0.0,
 	};
-	
+
 	Grid::vaoBuffer = new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);
 	Grid::vertexBuffer = new Buffer(4, 2, &line, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false);
-	
+
 	// Axis
 	const float triangleVertexBuffer[] = {
 		 0.0f,	0.15f, 0.0f,	// top
 		-0.05f, -0.05f, 0.0f,	// bottom left
 		 0.05f, -0.05f, 0.0f	// bottom right
 	};
-	
+
 	Axis::vaoBuffer = new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);
 	Axis::vertexBuffer = new Buffer(9, 3, &triangleVertexBuffer, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false);
 }

@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,7 +34,7 @@ Checkbox::Checkbox(const std::shared_ptr<ITexture>& texture, bool checked, float
 	_scaleFactor = scaleFactor;
 	_contextWidth = contextWidth;
 	_contextHeight = contextHeight;
-	
+
 	// Cut texture
 	if (_checked)
 		setTextureIndex(2);
@@ -49,7 +49,7 @@ void Checkbox::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad, con
 {
 	(void)keyboard;
 	(void)gamepad;
-	
+
 	if (_enabled)
 	{
 		if ((navigationType == NavigationType::MOUSE
@@ -111,7 +111,7 @@ void Checkbox::setTexture(const std::shared_ptr<ITexture>& texture)
 void Checkbox::setChecked(bool checked)
 {
 	_checked = checked;
-	
+
 	// Update
 	if (_checked)
 		setTextureIndex(1);
@@ -122,7 +122,7 @@ void Checkbox::setChecked(bool checked)
 void Checkbox::setSelected(bool selected)
 {
 	_selected = selected;
-	
+
 	if (_selected)
 	{
 		if (_textureIndex == 0)

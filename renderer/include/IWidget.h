@@ -148,31 +148,31 @@ protected:
 		switch (anchor)
 		{
 			case AnchorPoint::TOP_CENTER:
-				anchorPosition = glm::vec2(contextWidth / 2, 0);
+				anchorPosition = glm::vec2(contextWidth / 2, size.y);
 				break;
 			case AnchorPoint::TOP_RIGHT:
-				anchorPosition = glm::vec2(contextWidth, 0);
+				anchorPosition = glm::vec2(contextWidth - size.x, size.y);
 				break;
 			case AnchorPoint::BOTTOM_LEFT:
-				anchorPosition = glm::vec2(0, contextHeight);
+				anchorPosition = glm::vec2(size.x, contextHeight - size.y);
 				break;
 			case AnchorPoint::BOTTOM_CENTER:
-				anchorPosition = glm::vec2(contextWidth / 2, contextHeight);
+				anchorPosition = glm::vec2(contextWidth / 2, contextHeight - size.y);
 				break;
 			case AnchorPoint::BOTTOM_RIGHT:
-				anchorPosition = glm::vec2(contextWidth, contextHeight);
+				anchorPosition = glm::vec2(contextWidth - size.x, contextHeight - size.y);
 				break;
 			case AnchorPoint::CENTER_LEFT:
-				anchorPosition = glm::vec2(0, contextHeight / 2);
+				anchorPosition = glm::vec2(size.x, contextHeight / 2);
 				break;
 			case AnchorPoint::CENTER_RIGHT:
-				anchorPosition = glm::vec2(contextWidth, contextHeight / 2);
+				anchorPosition = glm::vec2(contextWidth - size.x, contextHeight / 2);
 				break;
 			case AnchorPoint::CENTER:
 				anchorPosition = glm::vec2(contextWidth / 2, contextHeight / 2);
 				break;
 			default: // Top Left
-				anchorPosition = glm::vec2(0, 0);
+				anchorPosition = glm::vec2(size.x, size.y);
 				break;
 		}
 

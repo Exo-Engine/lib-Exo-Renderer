@@ -58,7 +58,7 @@ namespace	ExoRenderer
 class IRenderer
 {
 public:
-	IRenderer(void): _UIScaleFactor(1.0f), _pCurrentCamera(nullptr), _pMousePicker(nullptr), _pAxis(nullptr), _currentNavigationType(NavigationType::MOUSE)
+	IRenderer(void) : _currentNavigationType(NavigationType::MOUSE), _UIScaleFactor(1.0f), _pCurrentCamera(nullptr), _pMousePicker(nullptr), _pAxis(nullptr)
 	{ };
 
 	virtual ~IRenderer(void)

@@ -295,7 +295,8 @@ void RendererSDLOpenGL::add(IWidget *widget)
 	{
 		case IWidget::BUTTON: {
 			auto button = (Button*)widget;
-			add(button->getLabel());
+			if (button->getLabel())
+				add(button->getLabel());
 			break;
 		}
 		case IWidget::SELECT: {
@@ -405,6 +406,7 @@ void RendererSDLOpenGL::swap(void)
 	_gamepad.update();
 
 	_pWindow->handleEvents(_keyboard, _mouse, _gamepad);
+	_pCursor->update();
 
 	_pWindow->swap();
 

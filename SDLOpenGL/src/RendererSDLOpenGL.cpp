@@ -34,6 +34,9 @@
 #include "OrthogonalLight.h"
 #include "PerspectiveLight.h"
 #include "PointLight.h"
+#include "Model.h"
+#include "ModelInstance.h"
+#include "BodyPartInstance.h"
 
 using namespace ExoRenderer;
 using namespace ExoRendererSDLOpenGL;
@@ -74,9 +77,10 @@ void RendererSDLOpenGL::initialize(const std::string& title, const int width, co
 	createBuffers();
 
 	// Renderers
-	_pObjectRenderer = new ObjectRenderer();
+	_pSpriteRenderer = new SpriteRenderer();
 	_pGUIRenderer = new GUIRenderer();
 	_pTextRenderer = new TextRenderer();
+	_pObjectRenderer = new ObjectRenderer();
 }
 
 void RendererSDLOpenGL::resize()
@@ -283,7 +287,7 @@ IFrameBuffer	*RendererSDLOpenGL::createFrameBuffer(void)
 // Push
 void RendererSDLOpenGL::add(sprite &s)
 {
-	_pObjectRenderer->add(s);
+	_pSpriteRenderer->add(s);
 }
 
 void RendererSDLOpenGL::add(IWidget *widget)
@@ -330,10 +334,15 @@ void RendererSDLOpenGL::add(std::shared_ptr<ILight> &light)
 {
 }
 
+void RendererSDLOpenGL::add(IModelInstance* object)
+{
+	_pObjectRenderer->add(static_cast<ModelInstance*>(object));
+}
+
 // Push
 void RendererSDLOpenGL::remove(sprite &s)
 {
-	_pObjectRenderer->remove(s);
+	_pSpriteRenderer->remove(s);
 }
 
 void RendererSDLOpenGL::remove(IWidget *widget)
@@ -371,6 +380,11 @@ void RendererSDLOpenGL::remove(std::shared_ptr<ILight> &light)
 {
 }
 
+void RendererSDLOpenGL::remove(IModelInstance* object)
+{
+	_pObjectRenderer->remove(static_cast<ModelInstance*>(object));
+}
+
 void RendererSDLOpenGL::draw(void)
 {
 	// Renderers
@@ -378,6 +392,8 @@ void RendererSDLOpenGL::draw(void)
 	{
 		if (_pMousePicker)
 			_pMousePicker->update((IMouse*)&_mouse, _pWindow->getWidth(), _pWindow->getHeight(), ((Camera*)_pCurrentCamera)->getLookAt(), _perspective);
+
+		_pSpriteRenderer->render((Camera*)_pCurrentCamera, _perspective);
 
 		_pObjectRenderer->render((Camera*)_pCurrentCamera, _perspective);
 
@@ -503,13 +519,74 @@ void RendererSDLOpenGL::setAxis(IAxis* axis)
 
 void RendererSDLOpenGL::setGridEnable(bool val)
 {
-	if (_pObjectRenderer)
-		_pObjectRenderer->setGrid(val);
+	if (_pSpriteRenderer)
+		_pSpriteRenderer->setGrid(val);
+}
+
+IModelInstance*	RendererSDLOpenGL::instanciate(Model* model)
+{
+	ModelInstance* instance = new ModelInstance();
+
+	instance->setBody(instanciate(model->getBody(), instance));
+	return (instance);
+}
+
+IBodyPartInstance*	RendererSDLOpenGL::instanciate(BodyPart* bodyPart, IModelInstance* model, IBodyPartInstance* parent)
+{
+	BodyPartInstance*	instance = new BodyPartInstance(bodyPart, model, static_cast<BodyPartInstance*>(parent));
+
+	instance->setVao(new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false));
+
+	std::vector<glm::vec3>	vertices;
+	for
+		(const glm::highp_uvec3& index : bodyPart->getVertices())
+	{
+		vertices.push_back(bodyPart->getModel()->getVertices()[index.x]);
+		vertices.push_back(bodyPart->getModel()->getVertices()[index.y]);
+		vertices.push_back(bodyPart->getModel()->getVertices()[index.z]);
+	}
+	std::vector<glm::vec2>	textureVertices;
+	for
+		(const glm::highp_uvec3& index : bodyPart->getTextureVertices())
+	{
+		textureVertices.push_back(bodyPart->getModel()->getTextureVertices()[index.x]);
+		textureVertices.push_back(bodyPart->getModel()->getTextureVertices()[index.y]);
+		textureVertices.push_back(bodyPart->getModel()->getTextureVertices()[index.z]);
+	}
+	std::vector<glm::vec3>	normals;
+	for
+		(const glm::highp_uvec3& index : bodyPart->getVerticesNormals())
+	{
+		normals.push_back(bodyPart->getModel()->getVerticesNormals()[index.x]);
+		normals.push_back(bodyPart->getModel()->getVerticesNormals()[index.y]);
+		normals.push_back(bodyPart->getModel()->getVerticesNormals()[index.z]);
+	}
+
+	instance->setVertexBuffer(new Buffer(vertices.size() * 3, 3, vertices.data(), BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false));
+	instance->setTextureVertexBuffer(new Buffer(textureVertices.size() * 2, 2, textureVertices.data(), BufferType::ARRAYBUFFER, BufferDraw::STATIC, 1, false));
+	instance->setNormalBuffer(new Buffer(normals.size() * 3, 3, normals.data(), BufferType::ARRAYBUFFER, BufferDraw::STATIC, 2, false));
+
+	instance->setAmbientTexture(new Texture(bodyPart->getMaterial()->getAmbiantTexture(), NEAREST));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	instance->setDiffuseTexture(new Texture(bodyPart->getMaterial()->getDiffuseTexture(), NEAREST));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	instance->setSpecularTexture(new Texture(bodyPart->getMaterial()->getSpecularTexture(), NEAREST));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	for (BodyPart* child : bodyPart->getChilds())
+		instance->addChild(instanciate(child, model, instance));
+	return (instance);
+}
+
+void	RendererSDLOpenGL::loadModel(Model* model)
+{
 }
 
 // Private
 RendererSDLOpenGL::RendererSDLOpenGL(void)
-: IRenderer(), _pWindow(nullptr), _pObjectRenderer(nullptr), _pGUIRenderer(nullptr), _pTextRenderer(nullptr), _pCursor(nullptr)
+: IRenderer(), _pWindow(nullptr), _pSpriteRenderer(nullptr), _pGUIRenderer(nullptr), _pTextRenderer(nullptr), _pObjectRenderer(nullptr), _pCursor(nullptr)
 {
 	_mainThread = std::this_thread::get_id();
 }
@@ -523,14 +600,17 @@ RendererSDLOpenGL::~RendererSDLOpenGL(void)
 		delete _pCursor;
 
 	// Renderers
-	if (_pObjectRenderer)
-		delete _pObjectRenderer;
+	if (_pSpriteRenderer)
+		delete _pSpriteRenderer;
 
 	if (_pGUIRenderer)
 		delete _pGUIRenderer;
 
 	if (_pTextRenderer)
 		delete _pTextRenderer;
+
+	if (_pObjectRenderer)
+		delete _pObjectRenderer;
 
 	// Buffers
 	if (TextRenderer::vaoBuffer)
@@ -540,8 +620,8 @@ RendererSDLOpenGL::~RendererSDLOpenGL(void)
 		delete TextRenderer::vertexBuffer;
 
 	// Shaders
-	if (ObjectRenderer::pShader)
-		delete ObjectRenderer::pShader;
+	if (SpriteRenderer::pShader)
+		delete SpriteRenderer::pShader;
 
 	if (GUIRenderer::pGuiShader)
 		delete GUIRenderer::pGuiShader;
@@ -571,10 +651,10 @@ void RendererSDLOpenGL::createBuffers(void)
 		1.0f, 0.0f
 	};
 
-	ObjectRenderer::vaoBuffer = new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);
-	ObjectRenderer::vertexBuffer = new Buffer(12, 3, &vertexBuffer, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false);
-	ObjectRenderer::indexBuffer = new Buffer(6, 3, &indexBuffer, BufferType::INDEXBUFFER, BufferDraw::STATIC, 0, false);
-	ObjectRenderer::uvBuffer = new Buffer(8, 2, &UVBuffer, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 1, true);
+	SpriteRenderer::vaoBuffer = new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);
+	SpriteRenderer::vertexBuffer = new Buffer(12, 3, &vertexBuffer, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false);
+	SpriteRenderer::indexBuffer = new Buffer(6, 3, &indexBuffer, BufferType::INDEXBUFFER, BufferDraw::STATIC, 0, false);
+	SpriteRenderer::uvBuffer = new Buffer(8, 2, &UVBuffer, BufferType::ARRAYBUFFER, BufferDraw::STATIC, 1, true);
 
 	// TextRenderer
 	TextRenderer::vaoBuffer = new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);
@@ -641,6 +721,78 @@ static const std::vector<std::string>	g_2DShader = {
 	"        discard;",
 	"",
 	"	color = color_out;",
+	"}"
+};
+
+static const std::vector<std::string>	g_3DShader = {
+	"#version 410 core",
+	"",
+	"layout(location = 0) in vec3	v;",
+	"layout(location = 1) in vec2	vtin;",
+	"layout(location = 2) in vec3	vnin;",
+	"",
+	"out vec2	vt;",
+	"out vec3	vn;",
+	"out vec3	pos;",
+	"",
+	"uniform mat4	model;",
+	"uniform mat4	view;",
+	"uniform mat4	projection;",
+	"",
+	"void main()",
+	"{",
+	"	gl_Position = projection * view * model * vec4(v, 1);",
+	"	vt = vtin;",
+	"	vt.y = 1 -vt.y;",
+	"	vn = vnin;",
+	"}",
+	"",
+	"#FRAGMENT",
+	"#version 410 core",
+	"",
+	"in vec2		vt;",
+	"in vec3		vn;",
+	"in vec3		pos;",
+	"",
+	"out vec4	color;",
+	"",
+	"uniform sampler2D	ka;",
+	"uniform sampler2D	kd;",
+	"uniform sampler2D	ks;",
+	"uniform float		specularExponent;",
+	"uniform vec3		cameraPos;",
+	"uniform vec3		lightPos;",
+	"uniform vec3		lightColor;",
+	"uniform vec3		lightIntensity;",
+	"",
+	"vec4	multiply(vec4 a, vec4 b)",
+	"{",
+	"	return (vec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w));",
+	"}",
+	"",
+	"void	main()",
+	"{",
+	"	vec4	color_ambient = texture(ka, vt).rgba;",
+	"	vec4	color_diffuse = texture(kd, vt).rgba;",
+	"	vec4	color_specular = texture(ks, vt).rgba;",
+	"	vec3	reflected = normalize(normalize(pos - cameraPos) - 2 * vn * dot(normalize(pos - cameraPos), vn));",
+	"	float	diffuse = dot(normalize(lightPos - pos), vn);",
+	"	float	specular = pow(dot(normalize(cameraPos - pos), reflected), specularExponent);",
+	"",
+	"	if (diffuse < 0 || isinf(diffuse) || isnan(diffuse))",
+	"	{",
+	"		diffuse = 0;",
+	"		specular = 0;",
+	"	}",
+	"	else if (specular < 0 || isinf(specular) || isnan(specular))",
+	"		specular = 0;",
+	"",
+	"	color = vec4(lightColor, 1) *",
+	"		(lightIntensity.x * color_ambient +",
+	"		lightIntensity.y * color_diffuse * diffuse +",
+	"		lightIntensity.z * color_specular * specular);",
+	"",
+	"	color.a = 1;",
 	"}"
 };
 
@@ -773,16 +925,18 @@ static const std::vector<std::string>	g_axisShader = {
 void RendererSDLOpenGL::loadShaders(void)
 {
 #ifdef USE_TEST_SHADERS
-	ObjectRenderer::pShader = new Shader("resources/shaders/OpenGL3/2D.glsl");
+	SpriteRenderer::pShader = new Shader("resources/shaders/OpenGL3/2D.glsl");
 	GUIRenderer::pGuiShader = new Shader("resources/shaders/OpenGL3/gui.glsl");
 	TextRenderer::pTextShader = new Shader("resources/shaders/OpenGL3/font.glsl");
 	Grid::pShader = new Shader("resources/shaders/OpenGL3/line.glsl");
 	Axis::pShader = new Shader("resources/shaders/OpenGL3/axis.glsl");
+	ObjectRenderer::pShader = new Shader("resources/shaders/OpenGL3/3D.glsl");
 #else
-	ObjectRenderer::pShader = new Shader(g_2DShader);
+	SpriteRenderer::pShader = new Shader(g_2DShader);
 	GUIRenderer::pGuiShader = new Shader(g_guiShader);
 	TextRenderer::pTextShader = new Shader(g_fontShader);
 	Grid::pShader = new Shader(g_lineShader);
 	Axis::pShader = new Shader(g_axisShader);
+	ObjectRenderer::pShader = new Shader(g_3DShader);
 #endif
 }

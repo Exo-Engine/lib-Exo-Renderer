@@ -36,13 +36,14 @@
 #include "GamepadManager.h"
 #include "Gamepad.h"
 #include "Cursor.h"
-#include "ObjectRenderer.h"
+#include "SpriteRenderer.h"
 #include "GUIRenderer.h"
 #include "Grid.h"
 #include "TextRenderer.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "ArrayTexture.h"
+#include "ObjectRenderer.h"
 
 #include <vector>
 
@@ -61,21 +62,21 @@ public:
 	virtual void initialize(const std::string& title, const int width, const int height, const ExoRenderer::WindowMode &mode, bool resizable);
 	virtual void resize();
 
-	virtual ExoRenderer::ICamera		 *createCamera(void);
+	virtual ExoRenderer::ICamera		*createCamera(void);
 	virtual ExoRenderer::IAxis			*createAxis(void);
 	virtual ExoRenderer::ITexture		*createTexture(const std::string& filePath, ExoRenderer::TextureFilter filter = ExoRenderer::TextureFilter::LINEAR);
 	virtual ExoRenderer::ITexture		*createTexture(unsigned int width, unsigned int height, ExoRenderer::TextureFormat format = ExoRenderer::TextureFormat::RGBA, ExoRenderer::TextureFilter filter = ExoRenderer::TextureFilter::LINEAR);
 	virtual ExoRenderer::IArrayTexture	*createArrayTexture(int width, int height, std::vector<std::string> &textures, ExoRenderer::TextureFilter filter = ExoRenderer::TextureFilter::LINEAR);
 
-	virtual ExoRenderer::ICursor		 *createCursor();
+	virtual ExoRenderer::ICursor		*createCursor();
 	virtual ExoRenderer::ILabel			*createLabel();
-	virtual ExoRenderer::IButton		 *createButton(const std::shared_ptr<ExoRenderer::ITexture> &texture, ExoRenderer::ButtonType buttonType = ExoRenderer::ButtonType::NORMAL, bool withLabel = true);
+	virtual ExoRenderer::IButton		*createButton(const std::shared_ptr<ExoRenderer::ITexture> &texture, ExoRenderer::ButtonType buttonType = ExoRenderer::ButtonType::NORMAL, bool withLabel = true);
 	virtual ExoRenderer::ICheckbox		*createCheckbox(const std::shared_ptr<ExoRenderer::ITexture> &texture, bool checked = false);
 	virtual ExoRenderer::IInput			*createInput(const std::shared_ptr<ExoRenderer::ITexture> &texture, const std::string &text = "", ExoRenderer::InputType type = ExoRenderer::InputType::TEXT);
 	virtual ExoRenderer::IImage			*createImage(const std::shared_ptr<ExoRenderer::ITexture> &texture);
 	virtual ExoRenderer::ISpinner		*createSpinner(const std::shared_ptr<ExoRenderer::ITexture> &texture);
-	virtual ExoRenderer::ISlider		 *createSlider(const std::shared_ptr<ExoRenderer::ITexture>& buttonTexture, const std::shared_ptr<ExoRenderer::ITexture>& barTexture);
-	virtual ExoRenderer::ISelect		 *createSelect(const std::shared_ptr<ExoRenderer::ITexture>& buttonTexture, const std::shared_ptr<ExoRenderer::ITexture>& backgroundTexture, const std::shared_ptr<ExoRenderer::ITexture>& scrollTexture, const std::shared_ptr<ExoRenderer::Font>& font);
+	virtual ExoRenderer::ISlider		*createSlider(const std::shared_ptr<ExoRenderer::ITexture>& buttonTexture, const std::shared_ptr<ExoRenderer::ITexture>& barTexture);
+	virtual ExoRenderer::ISelect		*createSelect(const std::shared_ptr<ExoRenderer::ITexture>& buttonTexture, const std::shared_ptr<ExoRenderer::ITexture>& backgroundTexture, const std::shared_ptr<ExoRenderer::ITexture>& scrollTexture, const std::shared_ptr<ExoRenderer::Font>& font);
 	virtual ExoRenderer::IView			*createView(const std::shared_ptr<ExoRenderer::ITexture>& scrollTexture, unsigned int numberOfRows = 1, unsigned int numberOfColumns = 1);
 	virtual ExoRenderer::IView			*createView(const std::shared_ptr<ExoRenderer::ITexture>& backgroundTexture, const std::shared_ptr<ExoRenderer::ITexture>& scrollTexture, unsigned int numberOfRows = 1, unsigned int numberOfColumns = 1);
 	virtual ExoRenderer::ILight			*createOrthogonalLight(const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &pos, const glm::vec3 &dir, const glm::vec3 &up, const glm::vec2 &x, const glm::vec2 &y, const glm::vec2 &z);
@@ -87,11 +88,13 @@ public:
 	virtual void add(ExoRenderer::IWidget *widget);
 	virtual void add(ExoRenderer::ILabel *label);
 	virtual void add(std::shared_ptr<ExoRenderer::ILight> &light);
+	virtual void add(ExoRenderer::IModelInstance* object);
 
 	virtual void remove(ExoRenderer::sprite &s);
 	virtual void remove(ExoRenderer::IWidget *widget);
 	virtual void remove(ExoRenderer::ILabel *label);
 	virtual void remove(std::shared_ptr<ExoRenderer::ILight> &light);
+	virtual void remove(ExoRenderer::IModelInstance* object);
 
 	virtual void draw(void);
 	virtual void swap(void);
@@ -112,12 +115,17 @@ public:
 	virtual void setMousePicker(ExoRenderer::MousePicker* picker);
 	virtual void setAxis(ExoRenderer::IAxis* axis);
 	virtual void setGridEnable(bool val);
-private:
+
+	virtual ExoRenderer::IModelInstance*	instanciate(ExoRenderer::Model* model);
+protected:
 	RendererSDLOpenGL(void);
 	virtual ~RendererSDLOpenGL(void);
 
 	void createBuffers(void);
 	void loadShaders(void);
+
+	virtual void	loadModel(ExoRenderer::Model* model);
+	ExoRenderer::IBodyPartInstance*	instanciate(ExoRenderer::BodyPart* bodyPart, ExoRenderer::IModelInstance* model, ExoRenderer::IBodyPartInstance* parent = nullptr);
 private:
 	Window* _pWindow;
 
@@ -125,9 +133,10 @@ private:
 	Mouse _mouse;
 	GamepadManager _gamepad;
 
-	ObjectRenderer* _pObjectRenderer;
+	SpriteRenderer* _pSpriteRenderer;
 	GUIRenderer* _pGUIRenderer;
 	TextRenderer* _pTextRenderer;
+	ObjectRenderer* _pObjectRenderer;
 
 	glm::mat4 _perspective, _orthographic;
 	int _scissorBit[4];

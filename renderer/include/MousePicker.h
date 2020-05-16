@@ -56,7 +56,7 @@ class MousePicker
 		// Getters
 		glm::vec3 getPointOnRay(ICamera* camera, float distance)
 		{
-			glm::vec3	start =	camera->getPosition();
+			glm::vec3	start =	camera->getPos();
 			glm::vec3	scaledRay = glm::vec3(_ray.x * distance, _ray.y * distance, _ray.z * distance);
 
 			return start + scaledRay;

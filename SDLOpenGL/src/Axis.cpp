@@ -23,7 +23,7 @@
  */
 
 #include "Axis.h"
-#include "ObjectRenderer.h"
+#include "SpriteRenderer.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 
@@ -81,8 +81,8 @@ void Axis::drawAxis(int x, int y, float angle, const glm::vec3 &color, const glm
 
 	switch (_type) {
 		case AxisType::SCALE: {
-			ObjectRenderer::vaoBuffer->bind();
-			ObjectRenderer::vertexBuffer->bind();
+			SpriteRenderer::vaoBuffer->bind();
+			SpriteRenderer::vertexBuffer->bind();
 
 			model = glm::translate(glm::mat4(1.0f), glm::vec3(_pos.x + x, _pos.y + y, 0.0f));
 			model = glm::scale(model, glm::vec3(0.08f, 0.08f, 0.0f));

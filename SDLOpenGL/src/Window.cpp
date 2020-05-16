@@ -34,7 +34,7 @@ using namespace ExoRenderer;
 using namespace ExoRendererSDLOpenGL;
 
 Window::Window(const std::string &title, uint32_t width, uint32_t height, const WindowMode &mode, bool resizable, GamepadManager& gamepad)
-: IWindow(), _frameTexture(nullptr), _window(nullptr), _pFrameBuffer(nullptr)
+: IWindow(), _window(nullptr), _pFrameBuffer(nullptr), _frameTexture(nullptr), _depthTexture(nullptr)
 {
 	initialize(title, width, height, mode, resizable, gamepad);
 }
@@ -46,6 +46,9 @@ Window::~Window(void)
 
 	if (_frameTexture)
 		delete _frameTexture;
+
+	if (_depthTexture)
+		delete _depthTexture;
 
 	SDL_GL_DeleteContext(_context);
 	SDL_GL_DeleteContext(_threadContext);
@@ -304,7 +307,7 @@ void Window::swap(void)
 {
 	_pFrameBuffer->unbind(); // back to default
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	_postProcessing.bind();
 	GL_CALL(glBindVertexArray(_postVertexArrayObject.getBuffer()));
@@ -343,14 +346,20 @@ void Window::initPostProcessing(void)
 	if (_frameTexture)
 		delete _frameTexture;
 
+	if (_depthTexture)
+		delete _depthTexture;
+
 	// Color Texture
 	_frameTexture = new Texture(_contextWidth, _contextHeight, RGBA, NEAREST);
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
+	_depthTexture = new Texture(_contextWidth, _contextHeight, DEPTH, NEAREST);
+
 	// Framebuffer
 	_pFrameBuffer = new FrameBuffer();
 	_pFrameBuffer->attach(_frameTexture);
+	_pFrameBuffer->attach(_depthTexture);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		throw ("Error::FRAMEBUFFER:: Framebuffer is not complete!");

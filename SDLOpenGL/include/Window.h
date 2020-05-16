@@ -72,7 +72,6 @@ public:
 	virtual bool isFullscreen(void) const;
 
 	virtual bool getIsClosing(void) const;
-	Texture		 *_frameTexture;
 private:
 	void initialize(const std::string& title, uint32_t width, uint32_t height, const ExoRenderer::WindowMode &mode, bool resizable, GamepadManager& gamepad);
 	void initPostProcessing(void);
@@ -84,6 +83,8 @@ private:
 
 	// Post Processing
 	FrameBuffer	 *_pFrameBuffer;
+	Texture		 *_frameTexture;
+	Texture		 *_depthTexture;
 
 	Shader			_postProcessing;
 	Buffer			_postVertexArrayObject;

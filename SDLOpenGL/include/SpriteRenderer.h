@@ -24,20 +24,46 @@
 
 #pragma once
 
-#include "ICamera.h"
-#include <glm/gtc/matrix_transform.hpp>
+#include <deque>
+
+#include "Camera.h"
+#include "Shader.h"
+#include "Buffer.h"
+#include "sprite.h"
+#include "Grid.h"
+
+#include "Axis.h"
 
 namespace	ExoRendererSDLOpenGL
 {
-	class Camera : public ExoRenderer::ICamera
-	{
-		public:
-			Camera(void);
-			~Camera(void);
 
-			//	Getters
-			const glm::mat4&	getLookAt(void);
-		private:
-			glm::mat4	_lookAt;
-	};
+class SpriteRenderer
+{
+public:
+	SpriteRenderer(void);
+	virtual ~SpriteRenderer(void);
+
+	void add(const ExoRenderer::sprite &s);
+	void remove(const ExoRenderer::sprite &s);
+	void render(Camera* camera, const glm::mat4& perspective);
+
+	// Setters
+	void setGrid(bool val);
+private:
+	void prepare(Camera* camera, const glm::mat4& perspective);
+	static void renderSprite(ExoRenderer::sprite& s, Shader* shader);
+public:
+	static Shader* pShader;
+	static Buffer* vaoBuffer;
+	static Buffer* vertexBuffer;
+	static Buffer* indexBuffer;
+	static Buffer* uvBuffer;
+private:
+	bool _gridEnabled;
+	bool _axisEnabled;
+
+	std::deque<ExoRenderer::sprite> _renderQueue;
+	Grid	*_pGrid;
+};
+
 }

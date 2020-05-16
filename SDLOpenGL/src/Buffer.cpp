@@ -54,9 +54,10 @@ Buffer::~Buffer(void)
 	}
 }
 
-void Buffer::initialize(unsigned long count, unsigned int size, const void* data, BufferType type, BufferDraw usage, unsigned char attribArray, bool normalized)
+void	Buffer::initialize(unsigned long count, unsigned int size, const void* data, BufferType type, BufferDraw usage, unsigned char attribArray, bool normalized)
 {
 	_count = count;
+	_size = size;
 	_type = type;
 
 	switch (_type)
@@ -85,7 +86,7 @@ void Buffer::initialize(unsigned long count, unsigned int size, const void* data
 	}
 }
 
-void Buffer::updateSubData(unsigned long count, const void* data)
+void	Buffer::updateSubData(unsigned long count, const void* data)
 {
 	if (_type == BufferType::ARRAYBUFFER || _type == BufferType::INDEXBUFFER)
 	{
@@ -95,7 +96,7 @@ void Buffer::updateSubData(unsigned long count, const void* data)
 	}
 }
 
-void Buffer::bind(void) const
+void	Buffer::bind(void) const
 {
 	switch (_type)
 	{
@@ -114,7 +115,7 @@ void Buffer::bind(void) const
 	}
 }
 
-void Buffer::unbind(void) const
+void	Buffer::unbind(void) const
 {
 	switch (_type)
 	{
@@ -134,7 +135,17 @@ void Buffer::unbind(void) const
 }
 
 // Getters
-GLuint Buffer::getBuffer(void) const
+GLuint	Buffer::getBuffer(void) const
 {
 	return _id;
+}
+
+unsigned long	Buffer::getCount(void) const
+{
+	return (_count);
+}
+
+unsigned int	Buffer::getSize(void) const
+{
+	return (_size);
 }

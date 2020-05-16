@@ -28,49 +28,18 @@
 using namespace ExoRenderer;
 using namespace ExoRendererSDLOpenGL;
 
-Camera::Camera(void)
-: ICamera(), _lookAt(0.0f)
+Camera::Camera(void) :
+	ICamera()
 {
-
 }
 
 Camera::~Camera(void)
 {
-
-}
-
-void Camera::update(IMouse* mouse, IKeyboard* keyboard, IGamepad* gamepad)
-{
-	(void)mouse;
-
-	// Keyboard & Gamepad
-	if (keyboard->isKeyDown(KeyboardKeys::KEY_SPACE) || gamepad->triggerLeft > 0)
-		_position.z += _speed * RendererSDLOpenGL::Get().getWindow()->getDelta();
-	else if ((keyboard->isKeyDown(KeyboardKeys::KEY_LSHIFT) &&	_position.z > 1.0f) || (gamepad->triggerRight > 0 &&	_position.z > 3.0f))
-		_position.z -= _speed * RendererSDLOpenGL::Get().getWindow()->getDelta();
-
-	if (_pFollowedEntity == nullptr)
-	{
-		if (keyboard->isKeyDown(KeyboardKeys::KEY_W) || gamepad->leftStick.y < 0 - GAMEPAD_DEAD_ZONE)
-			_position.y += _speed * RendererSDLOpenGL::Get().getWindow()->getDelta();
-		else if (keyboard->isKeyDown(KeyboardKeys::KEY_S) || gamepad->leftStick.y > 0 + GAMEPAD_DEAD_ZONE)
-			_position.y -= _speed * RendererSDLOpenGL::Get().getWindow()->getDelta();
-
-		if (keyboard->isKeyDown(KeyboardKeys::KEY_A) || gamepad->leftStick.x < 0 - GAMEPAD_DEAD_ZONE)
-			_position.x -= _speed * RendererSDLOpenGL::Get().getWindow()->getDelta();
-		else if (keyboard->isKeyDown(KeyboardKeys::KEY_D) || gamepad->leftStick.x > 0 + GAMEPAD_DEAD_ZONE)
-			_position.x += _speed * RendererSDLOpenGL::Get().getWindow()->getDelta();
-	}
-
-	// Calculate LookAt matrice
-	if (_pFollowedEntity == nullptr)
-		_lookAt = glm::lookAt(_position, glm::vec3(_position.x, _position.y, 0), glm::vec3(0.0f, 1.0f, 0.0f));
-	else
-		_lookAt = glm::lookAt(glm::vec3(_pFollowedEntity->x + _pFollowedEntitySize->x / 2, _pFollowedEntity->y + _pFollowedEntitySize->y / 2, _position.z), glm::vec3(_pFollowedEntity->x + _pFollowedEntitySize->x / 2, _pFollowedEntity->y + _pFollowedEntitySize->y / 2, 0), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 // Getters
-glm::mat4 Camera::getLookAt(void)
+const glm::mat4&	Camera::getLookAt(void)
 {
-	return _lookAt;
+	_lookAt = glm::lookAt(_pos, _pos + _dir, _up);
+	return (_lookAt);
 }

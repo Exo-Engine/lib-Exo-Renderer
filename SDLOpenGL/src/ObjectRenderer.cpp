@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *
+ *	
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *
+ *	
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *
+ *	
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *
+ *	
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,37 +24,32 @@
 
 #include "ObjectRenderer.h"
 
+#include "BodyPart.h"
+#include "OGLCall.h"
+
 using namespace ExoRenderer;
 using namespace ExoRendererSDLOpenGL;
 
 Shader* ObjectRenderer::pShader = nullptr;
-Buffer* ObjectRenderer::vaoBuffer = nullptr;
-Buffer* ObjectRenderer::vertexBuffer = nullptr;
-Buffer* ObjectRenderer::indexBuffer = nullptr;
-Buffer* ObjectRenderer::uvBuffer = nullptr;
 
 ObjectRenderer::ObjectRenderer(void)
-: _pGrid(nullptr), _gridEnabled(false)
 {
-	_pGrid = new Grid(100, 100, {0.0f, 0.0f});
 }
 
 ObjectRenderer::~ObjectRenderer(void)
 {
-	if (_pGrid)
-		delete _pGrid;
 }
 
-void ObjectRenderer::add(const sprite &s)
+void	ObjectRenderer::add(ModelInstance* object)
 {
-	_renderQueue.push_back(s);
+	_renderQueue.push_back(object);
 }
 
-void ObjectRenderer::remove(const sprite &s)
+void	ObjectRenderer::remove(ModelInstance* object)
 {
-	for (std::deque<sprite>::iterator iterator = _renderQueue.begin(); iterator != _renderQueue.end(); iterator++)
+	for (std::deque<ModelInstance*>::iterator iterator = _renderQueue.begin(); iterator != _renderQueue.end(); iterator++)
 	{
-		if (&*iterator == &s)
+		if (*iterator == object)
 		{
 			_renderQueue.erase(iterator);
 			return ;
@@ -62,57 +57,51 @@ void ObjectRenderer::remove(const sprite &s)
 	}
 }
 
-void ObjectRenderer::render(Camera* camera, const glm::mat4& perspective)
+void	ObjectRenderer::render(Camera* camera, const glm::mat4& perspective)
 {
-	if (_gridEnabled)
-		_pGrid->render(camera->getLookAt(), perspective);
-
 	prepare(camera, perspective);
 
-	for (sprite& object : _renderQueue)
-	{
+	for (ModelInstance* object : _renderQueue)
 		renderObject(object, pShader);
-	}
 }
 
-void ObjectRenderer::setGrid(bool val)
-{
-	_gridEnabled = val;
-}
-
-// Private
-void ObjectRenderer::prepare(Camera* camera, const glm::mat4& perspective)
+void	ObjectRenderer::prepare(Camera* camera, const glm::mat4& perspective)
 {
 	pShader->bind();
 	pShader->setMat4("projection", perspective);
 	pShader->setMat4("view", camera->getLookAt());
+	pShader->setMat4("model", glm::mat4(1));
+	pShader->setVec3("cameraPos", camera->getPos());
+	pShader->setVec3("lightPos", glm::vec3(0, 10, 0));
+	pShader->setVec3("lightColor", glm::vec3(1, 1, 1));
+	pShader->setVec3("lightIntensity", glm::vec3(0.42, 0.6, 0.2));
+	pShader->setFloat("specularExponent", 5);
 
-	// Render
-	vaoBuffer->bind();
-	vertexBuffer->bind();
-	uvBuffer->bind();
-
-	GL_CALL(glEnable(GL_BLEND));
+	GL_CALL(glEnable(GL_DEPTH_TEST));
+	GL_CALL(glEnable(GL_TEXTURE_2D));
 	GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	GL_CALL(glDepthFunc(GL_LESS));
+	GL_CALL(glEnable(GL_BLEND));
 }
 
-void ObjectRenderer::renderObject(sprite& s, Shader* shader)
+void	ObjectRenderer::renderObject(ModelInstance* object, Shader* shader)
 {
-	static glm::mat4 model;
-
-	s.texture->bind();
-
-	model = glm::translate(glm::mat4(1.0f), glm::vec3(s.position, 0.0f));
-	model = glm::rotate(model, s.angle, glm::vec3(0, 0, 1));
-	model = glm::scale(model, glm::vec3(s.scale, 0.0f));
-	shader->setMat4("model", model);
-
-	shader->setInt("layer", (int)s.layer);
-	shader->setInt("flipHorizontal", s.flip == HORIZONTAL ? -1 : 1);
-	shader->setInt("flipVertical", s.flip == VERTICAL ? -1 : 1);
-
-	shader->setFloat("size", 1);
-
-	GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
+	renderBodyPart(static_cast<BodyPartInstance*>(object->getBody()), shader);
 }
 
+void	ObjectRenderer::renderBodyPart(BodyPartInstance* bodyPart, Shader* shader)
+{
+	bodyPart->getVao()->bind();
+
+	bodyPart->getVertexBuffer()->bind();
+	bodyPart->getTextureVertexBuffer()->bind();
+	bodyPart->getNormalBuffer()->bind();
+
+	bodyPart->getAmbientTexture()->bind(0);
+	bodyPart->getDiffuseTexture()->bind(1);
+	bodyPart->getSpecularTexture()->bind(2);
+
+	GL_CALL(glDrawArrays(GL_TRIANGLES, 0, bodyPart->getVertexBuffer()->getCount() * 3));
+	for (IBodyPartInstance* child : bodyPart->getChilds())
+		renderBodyPart(static_cast<BodyPartInstance*>(child), shader);
+}

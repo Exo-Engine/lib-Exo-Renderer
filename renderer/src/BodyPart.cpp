@@ -26,7 +26,8 @@
 
 using namespace	ExoRenderer;
 
-Bone::Bone(void)
+Bone::Bone(void) :
+	_matrix(1)
 {
 }
 
@@ -40,6 +41,11 @@ Bone::~Bone(void)
 
 Bone&	Bone::operator=(const Bone& src)
 {
+}
+
+const glm::mat4&	Bone::getMatrix(void) const
+{
+	return (_matrix);
 }
 
 BodyPart::BodyPart(void) :

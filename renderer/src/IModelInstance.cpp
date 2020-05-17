@@ -42,11 +42,6 @@ IModelInstance::~IModelInstance(void)
 {
 }
 
-void				IModelInstance::setMatrix(const glm::mat4& matrix)
-{
-	_matrix = matrix;
-}
-
 void				IModelInstance::setBody(IBodyPartInstance* body)
 {
 	_body = body;
@@ -55,11 +50,6 @@ void				IModelInstance::setBody(IBodyPartInstance* body)
 Model*				IModelInstance::getModel(void) const
 {
 	return (_model);
-}
-
-const glm::mat4&	IModelInstance::getMatrix(void) const
-{
-	return (_matrix);
 }
 
 IBodyPartInstance*	IModelInstance::getBody(void) const

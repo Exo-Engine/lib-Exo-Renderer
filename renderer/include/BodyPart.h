@@ -42,6 +42,8 @@ namespace	ExoRenderer
 			Bone(void);
 			virtual ~Bone(void);
 
+			const glm::mat4&	getMatrix(void) const;
+
 		private:
 			Bone(const Bone& src);
 

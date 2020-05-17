@@ -24,6 +24,8 @@
 
 #include "IBodyPartInstance.h"
 
+#include "BodyPart.h"
+
 using namespace	ExoRenderer;
 
 IBodyPartInstance::IBodyPartInstance(void) :
@@ -38,6 +40,7 @@ IBodyPartInstance::IBodyPartInstance(BodyPart* bodyPart, IModelInstance* model, 
 	_bodyPart(bodyPart),
 	_parent(parent)
 {
+	_matrix = bodyPart->getBone().getMatrix();
 }
 
 IBodyPartInstance::~IBodyPartInstance(void)
@@ -57,6 +60,11 @@ BodyPart*			IBodyPartInstance::getBodyPart(void) const
 IBodyPartInstance*	IBodyPartInstance::getParent(void) const
 {
 	return (_parent);
+}
+
+const glm::mat4&	IBodyPartInstance::getMatrix(void) const
+{
+	return (_matrix);
 }
 
 void	IBodyPartInstance::addChild(IBodyPartInstance* child)

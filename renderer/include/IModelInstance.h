@@ -24,7 +24,9 @@
 
 #pragma once
 
-#include <glm/mat4x4.hpp>
+#include "IBodyPartInstance.h"
+
+#include <glm/vec3.hpp>
 
 namespace	ExoRenderer
 {
@@ -37,12 +39,13 @@ namespace	ExoRenderer
 			IModelInstance(Model* model);
 			virtual ~IModelInstance(void);
 
-			void				setMatrix(const glm::mat4& matrix);
 			void				setBody(IBodyPartInstance* body);
 
 			Model*				getModel(void) const;
-			const glm::mat4&	getMatrix(void) const;
 			IBodyPartInstance*	getBody(void) const;
+
+			void				translate(const glm::vec3& translation) { _body->translate(translation); }
+			void				rotate(float angle, const glm::vec3& axis) { _body->rotate(angle, axis); }
 
 		protected:
 			IModelInstance(void);
@@ -51,6 +54,5 @@ namespace	ExoRenderer
 
 			Model*				_model;
 			IBodyPartInstance*	_body;
-			glm::mat4			_matrix;
 	};
 }

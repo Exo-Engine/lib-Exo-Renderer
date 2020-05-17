@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <vector>
 
 namespace	ExoRenderer
@@ -41,15 +44,30 @@ namespace	ExoRenderer
 			IModelInstance*		getModel(void) const;
 			BodyPart*			getBodyPart(void) const;
 			IBodyPartInstance*	getParent(void) const;
+			const glm::mat4&	getMatrix(void) const;
 
 			void									addChild(IBodyPartInstance* child);
 			void									removeChild(IBodyPartInstance* child);
 			const std::vector<IBodyPartInstance*>&	getChilds(void) const;
+
+			void				translate(const glm::vec3& translation)
+			{
+				_matrix = glm::translate(_matrix, translation);
+				for (IBodyPartInstance* child : _childs)
+					child->translate(translation);
+			}
+			void				rotate(float angle, const glm::vec3& axis)
+			{
+				_matrix = glm::rotate(_matrix, angle, axis);
+				for (IBodyPartInstance* child : _childs)
+					child->rotate(angle, axis);
+			}
 
 		private:
 			IModelInstance*					_model;
 			BodyPart*						_bodyPart;
 			IBodyPartInstance*				_parent;
 			std::vector<IBodyPartInstance*>	_childs;
+			glm::mat4						_matrix;
 	};
 }

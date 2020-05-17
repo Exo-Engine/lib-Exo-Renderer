@@ -70,12 +70,10 @@ void	ObjectRenderer::prepare(Camera* camera, const glm::mat4& perspective)
 	pShader->bind();
 	pShader->setMat4("projection", perspective);
 	pShader->setMat4("view", camera->getLookAt());
-	pShader->setMat4("model", glm::mat4(1));
 	pShader->setVec3("cameraPos", camera->getPos());
 	pShader->setVec3("lightPos", glm::vec3(0, 10, 0));
 	pShader->setVec3("lightColor", glm::vec3(1, 1, 1));
 	pShader->setVec3("lightIntensity", glm::vec3(0.42, 0.6, 0.2));
-	pShader->setFloat("specularExponent", 5);
 
 	GL_CALL(glEnable(GL_DEPTH_TEST));
 	GL_CALL(glEnable(GL_TEXTURE_2D));
@@ -91,6 +89,11 @@ void	ObjectRenderer::renderObject(ModelInstance* object, Shader* shader)
 
 void	ObjectRenderer::renderBodyPart(BodyPartInstance* bodyPart, Shader* shader)
 {
+	Material*	material = bodyPart->getBodyPart()->getMaterial();
+
+	pShader->setFloat("specularExponent", material->getSpecularExponent());
+	pShader->setMat4("model", bodyPart->getMatrix());
+
 	bodyPart->getVao()->bind();
 
 	bodyPart->getVertexBuffer()->bind();

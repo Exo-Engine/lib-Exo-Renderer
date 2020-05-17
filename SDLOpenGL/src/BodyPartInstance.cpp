@@ -29,24 +29,12 @@
 using namespace	ExoRenderer;
 using namespace	ExoRendererSDLOpenGL;
 
-BodyPartInstance::BodyPartInstance(void) :
-	_vertexBuffer(nullptr),
-	_textureVertexBuffer(nullptr),
-	_normalBuffer(nullptr),
-	_ambiantTexture(nullptr),
-	_diffuseTexture(nullptr),
-	_specularTexture(nullptr)
+BodyPartInstance::BodyPartInstance(void)
 {
 }
 
 BodyPartInstance::BodyPartInstance(BodyPart* bodyPart, IModelInstance* model, BodyPartInstance* parent) :
-	IBodyPartInstance(bodyPart, model, parent),
-	_vertexBuffer(nullptr),
-	_textureVertexBuffer(nullptr),
-	_normalBuffer(nullptr),
-	_ambiantTexture(nullptr),
-	_diffuseTexture(nullptr),
-	_specularTexture(nullptr)
+	IBodyPartInstance(bodyPart, model, parent)
 {
 }
 
@@ -54,72 +42,37 @@ BodyPartInstance::~BodyPartInstance(void)
 {
 }
 
-void	BodyPartInstance::setVao(Buffer* buffer)
-{
-	_vao = buffer;
-}
-
-void	BodyPartInstance::setVertexBuffer(Buffer* buffer)
-{
-	_vertexBuffer = buffer;
-}
-
-void	BodyPartInstance::setTextureVertexBuffer(Buffer* buffer)
-{
-	_textureVertexBuffer = buffer;
-}
-
-void	BodyPartInstance::setNormalBuffer(Buffer* buffer)
-{
-	_normalBuffer = buffer;
-}
-
-void	BodyPartInstance::setAmbientTexture(Texture* texture)
-{
-	_ambiantTexture = texture;
-}
-
-void	BodyPartInstance::setDiffuseTexture(Texture* texture)
-{
-	_diffuseTexture = texture;
-}
-
-void	BodyPartInstance::setSpecularTexture(Texture* texture)
-{
-	_specularTexture = texture;
-}
-
 Buffer*	BodyPartInstance::getVao(void) const
 {
-	return (_vao);
+	return (getBodyPart()->getData<t_bodyPartData>()->_vao);
 }
 
 Buffer*	BodyPartInstance::getVertexBuffer(void) const
 {
-	return (_vertexBuffer);
+	return (getBodyPart()->getData<t_bodyPartData>()->_vertexBuffer);
 }
 
 Buffer*	BodyPartInstance::getTextureVertexBuffer(void) const
 {
-	return (_textureVertexBuffer);
+	return (getBodyPart()->getData<t_bodyPartData>()->_textureVertexBuffer);
 }
 
 Buffer*	BodyPartInstance::getNormalBuffer(void) const
 {
-	return (_normalBuffer);
+	return (getBodyPart()->getData<t_bodyPartData>()->_normalBuffer);
 }
 
 Texture*	BodyPartInstance::getAmbientTexture(void) const
 {
-	return (_ambiantTexture);
+	return (getBodyPart()->getData<t_bodyPartData>()->_ambiantTexture);
 }
 
 Texture*	BodyPartInstance::getDiffuseTexture(void) const
 {
-	return (_diffuseTexture);
+	return (getBodyPart()->getData<t_bodyPartData>()->_diffuseTexture);
 }
 
 Texture*	BodyPartInstance::getSpecularTexture(void) const
 {
-	return (_specularTexture);
+	return (getBodyPart()->getData<t_bodyPartData>()->_specularTexture);
 }

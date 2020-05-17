@@ -535,7 +535,21 @@ IBodyPartInstance*	RendererSDLOpenGL::instanciate(BodyPart* bodyPart, IModelInst
 {
 	BodyPartInstance*	instance = new BodyPartInstance(bodyPart, model, static_cast<BodyPartInstance*>(parent));
 
-	instance->setVao(new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false));
+	for (BodyPart* child : bodyPart->getChilds())
+		instance->addChild(instanciate(child, model, instance));
+	return (instance);
+}
+
+void	RendererSDLOpenGL::loadModel(Model* model)
+{
+	loadBodyPart(model->getBody());
+}
+
+void	RendererSDLOpenGL::loadBodyPart(ExoRenderer::BodyPart* bodyPart)
+{
+	t_bodyPartData*	data = new t_bodyPartData();
+
+	data->_vao = new Buffer(0, 0, NULL, BufferType::VERTEXARRAY, BufferDraw::STATIC, 0, false);
 
 	std::vector<glm::vec3>	vertices;
 	for
@@ -562,26 +576,24 @@ IBodyPartInstance*	RendererSDLOpenGL::instanciate(BodyPart* bodyPart, IModelInst
 		normals.push_back(bodyPart->getModel()->getVerticesNormals()[index.z]);
 	}
 
-	instance->setVertexBuffer(new Buffer(vertices.size() * 3, 3, vertices.data(), BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false));
-	instance->setTextureVertexBuffer(new Buffer(textureVertices.size() * 2, 2, textureVertices.data(), BufferType::ARRAYBUFFER, BufferDraw::STATIC, 1, false));
-	instance->setNormalBuffer(new Buffer(normals.size() * 3, 3, normals.data(), BufferType::ARRAYBUFFER, BufferDraw::STATIC, 2, false));
+	data->_vertexBuffer = new Buffer(vertices.size() * 3, 3, vertices.data(), BufferType::ARRAYBUFFER, BufferDraw::STATIC, 0, false);
+	data->_textureVertexBuffer = new Buffer(textureVertices.size() * 2, 2, textureVertices.data(), BufferType::ARRAYBUFFER, BufferDraw::STATIC, 1, false);
+	data->_normalBuffer = new Buffer(normals.size() * 3, 3, normals.data(), BufferType::ARRAYBUFFER, BufferDraw::STATIC, 2, false);
 
-	instance->setAmbientTexture(new Texture(bodyPart->getMaterial()->getAmbiantTexture(), NEAREST));
+	data->_ambiantTexture = new Texture(bodyPart->getMaterial()->getAmbiantTexture(), NEAREST);
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-	instance->setDiffuseTexture(new Texture(bodyPart->getMaterial()->getDiffuseTexture(), NEAREST));
+	data->_diffuseTexture = new Texture(bodyPart->getMaterial()->getDiffuseTexture(), NEAREST);
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-	instance->setSpecularTexture(new Texture(bodyPart->getMaterial()->getSpecularTexture(), NEAREST));
+	data->_specularTexture = new Texture(bodyPart->getMaterial()->getSpecularTexture(), NEAREST);
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+	bodyPart->setData(data);
+
 	for (BodyPart* child : bodyPart->getChilds())
-		instance->addChild(instanciate(child, model, instance));
-	return (instance);
-}
-
-void	RendererSDLOpenGL::loadModel(Model* model)
-{
+		loadBodyPart(child);
 }
 
 // Private

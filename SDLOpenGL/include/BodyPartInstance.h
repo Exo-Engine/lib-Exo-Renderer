@@ -32,20 +32,24 @@
 
 namespace	ExoRendererSDLOpenGL
 {
+	typedef struct	s_bodyPartData
+	{
+		Buffer*		_vao;
+		Buffer*		_vertexBuffer;
+		Buffer*		_textureVertexBuffer;
+		Buffer*		_normalBuffer;
+		Texture*	_ambiantTexture;
+		Texture*	_diffuseTexture;
+		Texture*	_specularTexture;
+	}				t_bodyPartData;
+
 	class	BodyPartInstance : public ExoRenderer::IBodyPartInstance
 	{
 		public:
 			BodyPartInstance(ExoRenderer::BodyPart* bodyPart, ExoRenderer::IModelInstance* model, BodyPartInstance* parent);
 			virtual ~BodyPartInstance(void);
 
-			void	setVao(Buffer* buffer);
-			void	setVertexBuffer(Buffer* buffer);
-			void	setTextureVertexBuffer(Buffer* buffer);
-			void	setNormalBuffer(Buffer* buffer);
-
-			void	setAmbientTexture(Texture* texture);
-			void	setDiffuseTexture(Texture* texture);
-			void	setSpecularTexture(Texture* texture);
+			//	graphics buffers and textures are shared by all instances, those functions are used by convenience
 
 			Buffer*		getVao(void) const;
 			Buffer*		getVertexBuffer(void) const;
@@ -58,13 +62,5 @@ namespace	ExoRendererSDLOpenGL
 
 		private:
 			BodyPartInstance(void);
-
-			Buffer*		_vao;
-			Buffer*		_vertexBuffer;
-			Buffer*		_textureVertexBuffer;
-			Buffer*		_normalBuffer;
-			Texture*	_ambiantTexture;
-			Texture*	_diffuseTexture;
-			Texture*	_specularTexture;
 	};
 }

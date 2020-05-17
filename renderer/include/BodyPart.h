@@ -69,6 +69,11 @@ namespace	ExoRenderer
 			void	addFace(const Face& face);
 			void	addChild(BodyPart* bodyPart);
 			void	setMaterial(Material* material);
+			template	<typename T>
+			void	setData(T* data)
+			{
+				_data = static_cast<void*>(data);
+			}
 
 			Model*									getModel(void) const;
 			Bone&									getBone(void);
@@ -79,6 +84,11 @@ namespace	ExoRenderer
 			const std::vector<glm::highp_uvec3>&	getVertices(void) const;
 			const std::vector<glm::highp_uvec3>&	getVerticesNormals(void) const;
 			const std::vector<glm::highp_uvec3>&	getTextureVertices(void) const;
+			template	<typename T>
+			T*		getData(void) const
+			{
+				return (static_cast<T*>(_data));
+			}
 		private:
 			BodyPart(void);
 			BodyPart(const BodyPart& src);
@@ -93,5 +103,6 @@ namespace	ExoRenderer
 			std::vector<glm::highp_uvec3>	_vertices;
 			std::vector<glm::highp_uvec3>	_textureVertices;
 			std::vector<glm::highp_uvec3>	_verticesnormals;
+			void*							_data;
 	};
 }

@@ -125,6 +125,7 @@ protected:
 	void loadShaders(void);
 
 	virtual void	loadModel(ExoRenderer::Model* model);
+	void			loadBodyPart(ExoRenderer::BodyPart* bodyPart);
 	ExoRenderer::IBodyPartInstance*	instanciate(ExoRenderer::BodyPart* bodyPart, ExoRenderer::IModelInstance* model, ExoRenderer::IBodyPartInstance* parent = nullptr);
 private:
 	Window* _pWindow;

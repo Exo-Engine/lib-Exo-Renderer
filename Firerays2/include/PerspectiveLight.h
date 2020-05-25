@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,32 +22,38 @@
  *	SOFTWARE.
  */
 
-#include "IModelInstance.h"
+#pragma once
 
-using namespace	ExoRenderer;
+#include "Light.h"
 
-IModelInstance::IModelInstance(void) :
-	_model(nullptr),
-	_body(nullptr)
+namespace	ExoRendererFirerays2
 {
-}
 
-IModelInstance::IModelInstance(Model* model) :
-	_model(model),
-	_body(nullptr)
+class	PerspectiveLight : public Light
 {
-}
+	public:
+		PerspectiveLight(const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &pos, const glm::vec3 &dir, const glm::vec3 &up, const float &fovy, const float &aspect, const float &near, const float &far);
+		virtual ~PerspectiveLight(void);
 
-IModelInstance::~IModelInstance(void)
-{
-}
+		void	setFov(const float &fovy);
+		void	setAspect(const float &aspect);
+		void	setNear(const float &near);
+		void	setFar(const float &far);
 
-void				IModelInstance::setBody(IBodyPartInstance* body)
-{
-	_body = body;
-}
+		const float	&getFov(void) const;
+		const float	&getAspect(void) const;
+		const float	&getNear(void) const;
+		const float	&getFar(void) const;
 
-Model*				IModelInstance::getModel(void) const
-{
-	return (_model);
+		const glm::mat4	&getProjection(void) const;
+	private:
+		void	renderProjection(void);
+
+		glm::mat4	_projection;
+		float		_fovy;
+		float		_aspect;
+		float		_near;
+		float		_far;
+};
+
 }

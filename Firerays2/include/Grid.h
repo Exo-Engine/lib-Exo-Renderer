@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,32 +22,30 @@
  *	SOFTWARE.
  */
 
-#include "IModelInstance.h"
+#pragma once
 
-using namespace	ExoRenderer;
+#include "Shader.h"
+#include "Buffer.h"
 
-IModelInstance::IModelInstance(void) :
-	_model(nullptr),
-	_body(nullptr)
+namespace	ExoRendererFirerays2
 {
-}
 
-IModelInstance::IModelInstance(Model* model) :
-	_model(model),
-	_body(nullptr)
+class Grid
 {
-}
+	public:
+		Grid(int width, int height, glm::vec2 pos);
+		virtual ~Grid(void);
 
-IModelInstance::~IModelInstance(void)
-{
-}
+		void render(const glm::mat4& lookAt, const glm::mat4& perspective);
+	private:
+		void drawLine(int x, int y, float angle);
+	public:
+		static Shader* pShader;
+		static Buffer* vaoBuffer;
+		static Buffer* vertexBuffer;
+	private:
+		unsigned int _width, _height;
+		glm::vec2 _pos;
+};
 
-void				IModelInstance::setBody(IBodyPartInstance* body)
-{
-	_body = body;
-}
-
-Model*				IModelInstance::getModel(void) const
-{
-	return (_model);
 }

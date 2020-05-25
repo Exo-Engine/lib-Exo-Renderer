@@ -22,32 +22,19 @@
  *	SOFTWARE.
  */
 
+#pragma once
+
 #include "IModelInstance.h"
+#include "Buffer.h"
 
-using namespace	ExoRenderer;
-
-IModelInstance::IModelInstance(void) :
-	_model(nullptr),
-	_body(nullptr)
+namespace	ExoRendererFirerays2
 {
-}
+	class	ModelInstance : public ExoRenderer::IModelInstance
+	{
+		public:
+			ModelInstance(void);
+			virtual ~ModelInstance(void);
 
-IModelInstance::IModelInstance(Model* model) :
-	_model(model),
-	_body(nullptr)
-{
-}
-
-IModelInstance::~IModelInstance(void)
-{
-}
-
-void				IModelInstance::setBody(IBodyPartInstance* body)
-{
-	_body = body;
-}
-
-Model*				IModelInstance::getModel(void) const
-{
-	return (_model);
+		private:
+	};
 }

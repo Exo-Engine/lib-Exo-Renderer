@@ -44,19 +44,19 @@ namespace	ExoRenderer
 			IModelInstance*		getModel(void) const;
 			BodyPart*			getBodyPart(void) const;
 			IBodyPartInstance*	getParent(void) const;
-			const glm::mat4&	getMatrix(void) const;
+			const glm::mat4&	getMatrix(void) const { return (_matrix); }
 
 			void									addChild(IBodyPartInstance* child);
 			void									removeChild(IBodyPartInstance* child);
 			const std::vector<IBodyPartInstance*>&	getChilds(void) const;
 
-			void				translate(const glm::vec3& translation)
+			virtual void		translate(const glm::vec3& translation)
 			{
 				_matrix = glm::translate(_matrix, translation);
 				for (IBodyPartInstance* child : _childs)
 					child->translate(translation);
 			}
-			void				rotate(float angle, const glm::vec3& axis)
+			virtual void		rotate(float angle, const glm::vec3& axis)
 			{
 				_matrix = glm::rotate(_matrix, angle, axis);
 				for (IBodyPartInstance* child : _childs)

@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,32 +22,35 @@
  *	SOFTWARE.
  */
 
-#include "IModelInstance.h"
+#pragma once
 
-using namespace	ExoRenderer;
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 
-IModelInstance::IModelInstance(void) :
-	_model(nullptr),
-	_body(nullptr)
+#include "IAxis.h"
+
+#include "Grid.h"
+#include "Shader.h"
+#include "Buffer.h"
+
+namespace	ExoRendererFirerays2
 {
-}
 
-IModelInstance::IModelInstance(Model* model) :
-	_model(model),
-	_body(nullptr)
+class Axis : public ExoRenderer::IAxis
 {
-}
+	public:
+		Axis(void);
+		virtual ~Axis(void);
 
-IModelInstance::~IModelInstance(void)
-{
-}
+		void render(const glm::mat4& lookAt, const glm::mat4& perspective);
+	private:
+	void drawAxis(int x, int y, float angle, const glm::vec3 &color, const glm::mat4& lookAt, const glm::mat4& perspective);
+	public:
+		static Shader* pShader;
 
-void				IModelInstance::setBody(IBodyPartInstance* body)
-{
-	_body = body;
-}
+		// Triangle
+		static Buffer* vaoBuffer;
+		static Buffer* vertexBuffer;
+};
 
-Model*				IModelInstance::getModel(void) const
-{
-	return (_model);
 }

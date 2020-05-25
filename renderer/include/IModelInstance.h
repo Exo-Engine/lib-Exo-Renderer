@@ -42,7 +42,7 @@ namespace	ExoRenderer
 			void				setBody(IBodyPartInstance* body);
 
 			Model*				getModel(void) const;
-			IBodyPartInstance*	getBody(void) const;
+			IBodyPartInstance*	getBody(void) const { return (_body); }
 
 			void				translate(const glm::vec3& translation) { _body->translate(translation); }
 			void				rotate(float angle, const glm::vec3& axis) { _body->rotate(angle, axis); }

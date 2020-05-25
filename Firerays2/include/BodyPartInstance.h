@@ -22,32 +22,34 @@
  *	SOFTWARE.
  */
 
+#pragma once
+
+#include "IBodyPartInstance.h"
 #include "IModelInstance.h"
+#include "Buffer.h"
+#include "Texture.h"
+#include "BodyPart.h"
+#include "opencl_compatibility.h"
 
-using namespace	ExoRenderer;
+#include "radeon_rays.h"
 
-IModelInstance::IModelInstance(void) :
-	_model(nullptr),
-	_body(nullptr)
+namespace	ExoRendererFirerays2
 {
-}
+	class	BodyPartInstance : public ExoRenderer::IBodyPartInstance
+	{
+		public:
+			BodyPartInstance(ExoRenderer::BodyPart* bodyPart, ExoRenderer::IModelInstance* model, BodyPartInstance* parent);
+			virtual ~BodyPartInstance(void);
 
-IModelInstance::IModelInstance(Model* model) :
-	_model(model),
-	_body(nullptr)
-{
-}
+			void				setShape(RadeonRays::Shape* shape);
+			RadeonRays::Shape*	getShape(void) const;
 
-IModelInstance::~IModelInstance(void)
-{
-}
+			virtual void		translate(const glm::vec3& translation);
+			virtual void		rotate(float angle, const glm::vec3& axis);
 
-void				IModelInstance::setBody(IBodyPartInstance* body)
-{
-	_body = body;
-}
+		private:
+			BodyPartInstance(void);
 
-Model*				IModelInstance::getModel(void) const
-{
-	return (_model);
+			RadeonRays::Shape*	_shape;
+	};
 }

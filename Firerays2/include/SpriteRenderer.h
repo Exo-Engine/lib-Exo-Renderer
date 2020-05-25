@@ -1,18 +1,18 @@
 /*
  *	MIT License
- *	
+ *
  *	Copyright (c) 2020 Gaëtan Dezeiraud and Ribault Paul
- *	
+ *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
  *	in the Software without restriction, including without limitation the rights
  *	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *	copies of the Software, and to permit persons to whom the Software is
  *	furnished to do so, subject to the following conditions:
- *	
+ *
  *	The above copyright notice and this permission notice shall be included in all
  *	copies or substantial portions of the Software.
- *	
+ *
  *	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,32 +22,48 @@
  *	SOFTWARE.
  */
 
-#include "IModelInstance.h"
+#pragma once
 
-using namespace	ExoRenderer;
+#include <deque>
 
-IModelInstance::IModelInstance(void) :
-	_model(nullptr),
-	_body(nullptr)
+#include "Camera.h"
+#include "Shader.h"
+#include "Buffer.h"
+#include "sprite.h"
+#include "Grid.h"
+
+#include "Axis.h"
+
+namespace	ExoRendererFirerays2
 {
-}
 
-IModelInstance::IModelInstance(Model* model) :
-	_model(model),
-	_body(nullptr)
+class SpriteRenderer
 {
-}
+public:
+	SpriteRenderer(void);
+	virtual ~SpriteRenderer(void);
 
-IModelInstance::~IModelInstance(void)
-{
-}
+	void add(const ExoRenderer::sprite &s);
+	void remove(const ExoRenderer::sprite &s);
+	void render(Camera* camera, const glm::mat4& perspective);
 
-void				IModelInstance::setBody(IBodyPartInstance* body)
-{
-	_body = body;
-}
+	// Setters
+	void setGrid(bool val);
+private:
+	void prepare(Camera* camera, const glm::mat4& perspective);
+	static void renderSprite(ExoRenderer::sprite& s, Shader* shader);
+public:
+	static Shader* pShader;
+	static Buffer* vaoBuffer;
+	static Buffer* vertexBuffer;
+	static Buffer* indexBuffer;
+	static Buffer* uvBuffer;
+private:
+	bool _gridEnabled;
+	bool _axisEnabled;
 
-Model*				IModelInstance::getModel(void) const
-{
-	return (_model);
+	std::deque<ExoRenderer::sprite> _renderQueue;
+	Grid	*_pGrid;
+};
+
 }

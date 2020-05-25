@@ -22,32 +22,27 @@
  *	SOFTWARE.
  */
 
-#include "IModelInstance.h"
+#pragma once
 
-using namespace	ExoRenderer;
+#include <CL/cl.h>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
-IModelInstance::IModelInstance(void) :
-	_model(nullptr),
-	_body(nullptr)
+#include "radeon_rays.h"
+
+namespace	ExoRendererFirerays2
 {
-}
+	cl_float2	toCLVec2(const glm::vec2& glVector);
+	glm::vec2	toVec2(const cl_float2& clVector);
 
-IModelInstance::IModelInstance(Model* model) :
-	_model(model),
-	_body(nullptr)
-{
-}
+	cl_float3	toCLVec3(const glm::vec3& glVector);
+	glm::vec3	toVec3(const cl_float3& clVector);
 
-IModelInstance::~IModelInstance(void)
-{
-}
+	cl_float4	toCLVec4(const glm::vec4& glVector);
+	glm::vec4	toVec4(const cl_float4& clVector);
 
-void				IModelInstance::setBody(IBodyPartInstance* body)
-{
-	_body = body;
-}
-
-Model*				IModelInstance::getModel(void) const
-{
-	return (_model);
+	glm::mat4x4			toMatrix(const RadeonRays::matrix& matrix);
+	RadeonRays::matrix	toRRMatrix(const glm::mat4x4& matrix);
 }

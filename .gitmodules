@@ -1,0 +1,6 @@
+[submodule "Firerays2/third_party/RandomCL"]
+	path = Firerays2/third_party/RandomCL
+	url = git@github.com:bstatcomp/RandomCL.git
+[submodule "Firerays2/third_party/RadeonRays_SDK"]
+	path = Firerays2/third_party/RadeonRays_SDK
+	url = git@github.com:GPUOpen-LibrariesAndSDKs/RadeonRays_SDK.git

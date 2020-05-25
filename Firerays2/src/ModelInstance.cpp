@@ -22,32 +22,15 @@
  *	SOFTWARE.
  */
 
-#include "IModelInstance.h"
+#include "ModelInstance.h"
 
 using namespace	ExoRenderer;
+using namespace	ExoRendererFirerays2;
 
-IModelInstance::IModelInstance(void) :
-	_model(nullptr),
-	_body(nullptr)
+ModelInstance::ModelInstance(void)
 {
 }
 
-IModelInstance::IModelInstance(Model* model) :
-	_model(model),
-	_body(nullptr)
+ModelInstance::~ModelInstance(void)
 {
-}
-
-IModelInstance::~IModelInstance(void)
-{
-}
-
-void				IModelInstance::setBody(IBodyPartInstance* body)
-{
-	_body = body;
-}
-
-Model*				IModelInstance::getModel(void) const
-{
-	return (_model);
 }

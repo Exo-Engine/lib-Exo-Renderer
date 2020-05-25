@@ -29,6 +29,10 @@
 #include "IKeyboard.h"
 #include "IGamepad.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/trigonometric.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+
 namespace	ExoRenderer
 {
 
@@ -53,6 +57,20 @@ public:
 	void	setDir(float x, float y, float z) { _dir = glm::vec3(x, y, z); }
 	void	setUp(const glm::vec3& up) { _up = up; }
 	void	setUp(float x, float y, float z) { _up = glm::vec3(x, y, z); }
+
+	void	translate(const glm::vec3& translation) { _pos += translation; }
+	void	rotate(const glm::vec3& axis, float angle) { _dir = glm::rotate(_dir, angle, axis); _up = glm::rotate(_up, angle, axis); }
+
+	void	moveForward(float step) { translate(_dir * step); }
+	void	moveBackward(float step) { translate(-_dir * step); }
+	void	moveLeft(float step) { translate(glm::rotate(_dir, glm::radians((float)90.0), _up) * step); }
+	void	moveRight(float step) { translate(glm::rotate(_dir, glm::radians((float)-90.0), _up) * step); }
+	void	moveUp(float step) { translate(_up * step); }
+	void	moveDown(float step) { translate(-_up * step); }
+	void	turnUp(float angle) { rotate(glm::rotate(_dir, glm::radians((float)-90.0), _up), angle); }
+	void	turnDown(float angle) { rotate(glm::rotate(_dir, glm::radians((float)-90.0), _up), -angle); }
+	void	turnLeft(float angle) { rotate(_up, angle); }
+	void	turnRight(float angle) { rotate(_up, -angle); }
 protected:
 	glm::vec3	_pos;
 	glm::vec3	_dir;

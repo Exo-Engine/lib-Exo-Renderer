@@ -62,11 +62,6 @@ IBodyPartInstance*	IBodyPartInstance::getParent(void) const
 	return (_parent);
 }
 
-const glm::mat4&	IBodyPartInstance::getMatrix(void) const
-{
-	return (_matrix);
-}
-
 void	IBodyPartInstance::addChild(IBodyPartInstance* child)
 {
 	_childs.push_back(child);

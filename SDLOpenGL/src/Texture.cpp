@@ -104,14 +104,8 @@ Texture::~Texture(void)
 
 void Texture::bind(int unit) const
 {
-	static GLuint	lastId = 0;
-
-	if (_id != lastId)
-	{
-		GL_CALL(glActiveTexture(GL_TEXTURE0 + unit));
-		GL_CALL(glBindTexture(GL_TEXTURE_2D, _id));
-		lastId = _id;
-	}
+	GL_CALL(glActiveTexture(GL_TEXTURE0 + unit));
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, _id));
 }
 
 void Texture::unbind(void) const
